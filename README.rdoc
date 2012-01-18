@@ -10,4 +10,9 @@ In order to generate the Geograph domain model you must compile this project and
 2. Change the dml file in src/common/dml/geograph.dml according to the instructions provided [here](??) and generate the domain model:
     ant -f build_ff.xml compile
 3. Enter in the geograph-domain folder using a shell and compile the project with ant:
-    
+    ant compile
+4. Run tests, if you have modified the dml you can make the appropriate changes to the test class test/it/algo/geograph/test/GeoObjectTest.java before running the tests:
+    ant test
+5. Package the domain model:
+    ant jar
+6. Put the new domain model inside the Geograph folder lib/fenix
