@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="compile" name="TPCW">
+  
+  <!-- first, access environment variables as properties -->
+  <property environment="env"/>
+  <!-- next, read project's property file -->
+  <property file="build.properties"/>
+
+  <property name="NUM_EBS" value="10" /> <!-- default: 10 -->
+  <property name="NUM_ITEMS" value="1000" /> <!-- default: 1000 -->
+
+  <!-- main src dirs -->
+  <property name="src.dir" location="src"/>
+  <property name="common.src.dir" location="${src.dir}/common"/>
+  <property name="ispn.src.dir" location="${src.dir}/ispn"/>
+  
+  <!-- common src dirs -->
+  <property name="dml.common.src.dir" location="${common.src.dir}/dml"/>
+  <property name="java.common.src.dir" location="${common.src.dir}/java"/>
+  <property name="template.common.src.dir" location="${common.src.dir}/template-java"/>
+
+  <!-- ispn specific dirs -->
+  <property name="java.ispn.src.dir" location="${ispn.src.dir}/java"/>
+  <!-- <property name="etc.ogm.src.dir" location="${ogm.src.dir}/etc"/> -->
+
+  <!-- other project dirs -->
+  <property name="lib.dir" location="lib"/>
+  <property name="config.dir" location="config"/>
+  <property name="build.dir" location="classes"/>
+  <property name="dist.dir" location="dist"/>
+  <property name="domain.dml" location="${dml.common.src.dir}/tpcw.dml"/>
+
+  <property name="build-devel.dir" location="classes-devel"/>
+  <property name="src-devel.dir" location="src-devel"/>
+  <property name="src.gen.dir" location="src_gen"/>
+  <property name="src-devel.gen.dir" location="src-devel_gen"/>
+  <property name="java.src-devel.dir" location="${src-devel.dir}/java"/>
+  <property name="dml.src-devel.dir" location="${src-devel.dir}/dml"/>
+
+  <!-- B+Trees in DML -->
+  <property name="bplustree.dml" location="${dml.src-devel.dir}/bplustree.dml"/>
+  <property name="ispn.code.generator.file" value="pt/ist/fenixframework/dml/ispn/IspnCodeGenerator.java"/>
+  <property name="ispn.code.generator.class" value="pt.ist.fenixframework.dml.ispn.IspnCodeGenerator"/>
+
+  <!-- The encoding of all the source files should be the same! -->
+  <property name="javac.encoding" value="UTF-8"/>
+
+  <!-- java.file.encoding should match your terminal's encoding -->
+  <property name="java.file.encoding" value="UTF-8"/>
+
+  <import file="dml-generate.xml"/>
+
+  <path id="project.class.path">
+    <pathelement path="${build.dir}"/>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <pathelement path="${build-devel.dir}"/>
+  </path>
+
+  <path id="ispn.project.class.path">
+    <pathelement path="${build.dir}"/>
+    <fileset dir="${lib.dir}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <pathelement path="${build-devel.dir}"/>
+  </path>
+
+  <target name="clean-all" description="Removes any generated files">
+    <delete dir="${build.dir}"/>
+    <delete dir="${build-devel.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${src.gen.dir}"/>
+  </target>
+
+  <target name="init" >
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build-devel.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+  </target>
+
+  <target name="compile-code-generator" depends="init" description="Compiles the DML code generator for Infinispan">
+    <javac srcdir="${java.src-devel.dir}" includes="${ispn.code.generator.file}" destdir="${build-devel.dir}"
+           extdirs="${lib.dir}" target="1.6" encoding="${javac.encoding}" debug="on" />
+  </target>
+
+  <target name="generate-bplustree" depends="compile-code-generator">
+    <dml-compile codeGenerator="${ispn.code.generator.class}"
+        dml="${bplustree.dml}" java-sources="${java.src-devel.dir}" java-gen="${src.gen.dir}">
+      <classpath refid="project.class.path"/>
+    </dml-compile>
+
+    <!-- <copy todir="${build-devel.dir}"> -->
+    <!--   <fileset dir="${src-devel.gen.dir}"> -->
+    <!--   </fileset> -->
+    <!-- </copy> -->
+  </target>
+
+  <target name="generate-domain" depends="compile-code-generator,generate-bplustree" >
+    <dml-compile codeGenerator="${ispn.code.generator.class}"
+        dml="${domain.dml}" java-sources="${java.common.src.dir}" java-gen="${src.gen.dir}">
+      <classpath refid="project.class.path"/>
+    </dml-compile>
+
+    <copy todir="${src.gen.dir}">
+      <fileset dir="${java.src-devel.dir}">
+	<include name="**/pt/ist/fenixframework/dml/ispn/**" />
+      </fileset>
+    </copy>
+
+    <copy todir="${build.dir}">
+      <fileset dir="${src.gen.dir}">
+	<include name="META-INF/**" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="generate-templates">
+    <filter token="sessionIdString" value="${session.id.string}" />
+    <filter token="num.item" value="${NUM_ITEMS}" />
+    <copy todir="${src.gen.dir}" filtering="on" overwrite="true">
+      <fileset dir="${template.common.src.dir}">
+	<include name="**/*.java" />
+      </fileset>
+    </copy>
+  </target>
+
+  <target name="compile" depends="init,generate-domain,generate-templates" description="Compiles all the source code">
+    <javac destdir="${build.dir}" extdirs="${lib.dir}" target="1.6" debug="on" encoding="${javac.encoding}">
+      <src path="${java.common.src.dir}"/>
+      <src path="${java.ispn.src.dir}"/>
+      <src path="${src.gen.dir}"/>
+      <classpath refid="ispn.project.class.path"/>
+    </javac>
+
+    <copy todir="${build.dir}">
+      <!-- <fileset dir="${etc.ogm.src.dir}" /> -->
+      <fileset dir="${dml.common.src.dir}" />
+      <fileset dir="${config.dir}" />
+    </copy>
+  </target>
+
+  <target name="generates-db" depends="compile" description="generates the data for the application">
+    <java classname="pt.ist.fenixframework.example.tpcw.populate.TPCW_Populate" fork="true">
+      <jvmarg value="-Dfile.encoding=${java.file.encoding}" />
+      <jvmarg value="-Xmx1536m"/>
+      <jvmarg value="-Xms512m"/>
+      <classpath refid="ispn.project.class.path"/>
+      <arg value="${NUM_EBS}" />
+      <arg value="${NUM_ITEMS}" />
+    </java>
+  </target>
+
+
+  <property name="app.war.file" location="${dist.dir}/tpcwFenix.war" />
+  <target name="create-war" depends="init,compile" description="creates the tpcwFenix.war file" >  
+    <!-- create new war, deleting previous version first -->
+    <delete file="${app.war.file}" />
+    <!-- use tpcw servlets as the base for the war file -->
+    <copy file="${lib.dir}/tpcw_servlets.jar" tofile="${app.war.file}" />
+
+    <jar destfile="${app.war.file}" update="true" >
+      <zipfileset dir="${build.dir}"
+		  prefix="WEB-INF/classes" />
+      <zipfileset dir="${build-devel.dir}"
+		  prefix="WEB-INF/classes" />
+      <zipfileset dir="${lib.dir}"
+		  excludes="tpcw_servlets.jar,servlet-api.jar"
+		  prefix="WEB-INF/lib" />
+    </jar>
+  </target>
+
+  <target name="build" depends="compile,create-war" description="Builds the application and creates the .war file" />
+
+  <!-- The following part of this build file specifies the behaviour for deploying the web application in the tomcat web server -->
+  <!-- For compatibility with the TPCW client web-app-env.deploy.context must be set to "tpcw". Be careful not to overwrite the original app on deploy -->
+  <property name="web-app-env.deploy.context" value="tpcw" />
+  <property name="web-app-env.deploy.war.rel-file" value="${app.war.file}" />
+  <!-- IMPORTS -->
+  <import file="build_tomcat.xml" />
+
+  <target name="install" depends="create-war,deploy" description="Creates the war file and install it on the server" />
+  <target name="remove" depends="undeploy" description="Removes the war file from the server" />
+  <target name="re-install" depends="remove,install" description="remove -> install" />
+
+</project>
