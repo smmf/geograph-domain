@@ -3,9 +3,11 @@ require 'java'
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
 DML_CONF_PATH = File.join(CURRENT_PATH, 'src', 'common', 'dml')
 ISPN_CONF_PATH = File.join(CURRENT_PATH, 'config')
+$CLASSPATH << ISPN_CONF_PATH
 
 # load the jars
 LIB_PATH = File.join(CURRENT_PATH, 'lib')
+$CLASSPATH << LIB_PATH
 Dir[File.join(LIB_PATH, '*.jar')].each{|jar|
   #next if jar.match(/fenix|jvstm/)
   puts "Loading JAR: #{jar}"
@@ -15,12 +17,10 @@ Dir[File.join(LIB_PATH, '*.jar')].each{|jar|
 #require File.join(LIB_PATH, 'jvstm.jar')
 #require File.join(LIB_PATH, 'fenix-framework-r53358.jar')
 
-$CLASSPATH << LIB_PATH
-
 # load the domain model jar
 DIST_PATH = File.join(CURRENT_PATH, 'dist')
-require File.join(DIST_PATH, 'geograph-domain.jar')
 $CLASSPATH << DIST_PATH
+require File.join(DIST_PATH, 'geograph-domain.jar')
 
 
 # Load Fenix Framework
