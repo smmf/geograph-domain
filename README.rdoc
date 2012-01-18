@@ -15,4 +15,6 @@ In order to generate the Geograph domain model you must compile this project and
     ant test
 5. Package the domain model:
     ant jar
+6. Run the jruby test:
+    jruby -S jruby_test.rb
 6. Put the new domain model inside the Geograph folder lib/fenix
