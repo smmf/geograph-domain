@@ -11,8 +11,6 @@ In order to generate the Geograph domain model do the following:
     ant -f build_ff.xml compile
 3. Enter in the geograph-domain folder using a shell and compile the project with ant:
     ant compile
-#4. Run the Java tests:
-#    ant test
 4. Package the domain model:
     ant jar
 5. Run the Jruby test:
