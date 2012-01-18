@@ -1,13 +1,13 @@
 == Geograph Domain Model (Ogm - Fenix - Infinispan)
 
-This is the Fenix (soon also Ogm) domain model of [Geograph](http://github.com/algorithmica/geograph).
+This is the Fenix (soon also Ogm) domain model of Geograph[http://github.com/algorithmica/geograph].
  
 == Getting started
 
 In order to generate the Geograph domain model you must compile this project and generate the jar. Then copy the jar in the lib/fenix folder of Geograph:
 1. Clone the project from the git repository:
     git clone git://github.com/algorithmica/geograph-domain.git
-2. Change the dml file in src/common/dml/geograph.dml according to the instructions provided [here](??) and generate the domain model:
+2. Change the dml file in src/common/dml/geograph.dml according to the instructions provided here[??] and generate the domain model:
     ant -f build_ff.xml compile
 3. Enter in the geograph-domain folder using a shell and compile the project with ant:
     ant compile
