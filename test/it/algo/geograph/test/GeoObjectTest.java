@@ -4,6 +4,9 @@
  */
 package it.algo.geograph.test;
 
+import java.io.IOException;
+import org.infinispan.Cache;
+import org.infinispan.manager.CacheManager;
 import org.cloudtm.framework.CloudtmConfig.Framework;
 import pt.ist.fenixframework.Config;
 import it.algo.geograph.domain.Root;
@@ -13,6 +16,7 @@ import org.cloudtm.framework.TxManager;
 import org.cloudtm.framework.TxSystem;
 import it.algo.geograph.domain.GeoObject;
 import java.math.BigDecimal;
+import org.infinispan.manager.DefaultCacheManager;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,21 +30,10 @@ import static org.junit.Assert.*;
  */
 public class GeoObjectTest {
 
-  private static TxManager txManager;
+  private static TxManager txManager = null;
   private static final Void VOID = null;
 
   public GeoObjectTest() {
-    Config config = new Config() {
-      {
-        domainModelPath = "src/common/dml/geograph.dml";
-        dbAlias = "config/infinispanNoFile.xml";
-        repositoryType = pt.ist.fenixframework.Config.RepositoryType.INFINISPAN;
-        rootClass = Root.class;
-      }
-    };
-
-    Init.initializeTxSystem(config, Framework.FENIX);
-    txManager = TxSystem.getManager();
   }
 
   @BeforeClass
@@ -53,6 +46,20 @@ public class GeoObjectTest {
 
   @Before
   public void setUp() {
+    if(txManager != null) return;
+    
+    Config config = new Config() {
+
+      {
+        domainModelPath = "src/common/dml/geograph.dml";
+        dbAlias = "config/infinispanNoFile.xml";
+        repositoryType = pt.ist.fenixframework.Config.RepositoryType.INFINISPAN;
+        rootClass = Root.class;
+      }
+    };
+
+    Init.initializeTxSystem(config, Framework.FENIX);
+    txManager = TxSystem.getManager();
   }
 
   @After
@@ -61,9 +68,9 @@ public class GeoObjectTest {
 
   @Test
   public void createAndFind() {
-    int id = 0;
     txManager.withTransaction(new TransactionalCommand<Void>() {
       // store a geo object
+
       @Override
       public Void doIt() {
         GeoObject geoObject = new GeoObject();
@@ -83,6 +90,7 @@ public class GeoObjectTest {
 
     txManager.withTransaction(new TransactionalCommand<Void>() {
       // load the persisted geo object and check latitude and longitude
+
       @Override
       public Void doIt() {
         Root root = (Root) txManager.getRoot();
@@ -92,5 +100,14 @@ public class GeoObjectTest {
         return VOID;
       }
     });
+  }
+
+  @Test
+  public void ispnStandalone() throws IOException {
+    CacheManager manager = new DefaultCacheManager("config/infinispanNoFile.xml");
+    Cache cache = manager.getCache();
+    cache.put("name", "ispn");
+    String name = (String) cache.get("name");
+    System.out.println("name is " + name);
   }
 }
