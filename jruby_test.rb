@@ -1,6 +1,6 @@
 require 'java'
-require 'rubygems'
-require 'active_support/all'
+#require 'rubygems'
+#require 'active_support/all'
 
 
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
@@ -111,7 +111,8 @@ class CloudTmGeoObject < FenixGeoObject
 
         instance = FenixGeoObject.new
         attrs.each do |attr, value|
-          instance.send("set#{ActiveSupport::Inflector.camelize(attr.to_s)}", value)
+          #instance.send("set#{ActiveSupport::Inflector.camelize(attr.to_s)}", value)
+          instance.send("#{attr}=", value)
         end
         manager.save instance
         instance.set_root manager.getRoot
