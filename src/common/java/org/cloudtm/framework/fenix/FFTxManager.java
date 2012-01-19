@@ -84,7 +84,9 @@ public class FFTxManager extends TxManager {
 
   public <T> T withTransaction(final TransactionalCommand<T> command) {
     T result = null;
-    boolean tryReadOnly = true;
+    boolean tryReadOnly = false;
+//    readonly first approach temporarily disabled
+//    boolean tryReadOnly = true;
     while (true) {
       Transaction.begin(tryReadOnly);
       boolean finished = false;
@@ -97,6 +99,7 @@ public class FFTxManager extends TxManager {
         Transaction.abort();
         finished = true;
       } catch (jvstm.WriteOnReadException wore) {
+        System.out.println("jvstm.WriteOnReadException");
         Transaction.abort();
         finished = true;
         tryReadOnly = false;

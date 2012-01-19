@@ -1,4 +1,7 @@
 require 'java'
+require 'rubygems'
+require 'active_support/all'
+
 
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
 DML_CONF_PATH = File.join(CURRENT_PATH, 'src', 'common', 'dml')
@@ -10,7 +13,7 @@ LIB_PATH = File.join(CURRENT_PATH, 'lib')
 $CLASSPATH << LIB_PATH
 Dir[File.join(LIB_PATH, '*.jar')].each{|jar|
   #next if jar.match(/fenix|jvstm/)
-  puts "Loading JAR: #{jar}"
+  #puts "Loading JAR: #{jar}"
   require jar
 }
 
@@ -108,7 +111,7 @@ class CloudTmGeoObject < FenixGeoObject
 
         instance = FenixGeoObject.new
         attrs.each do |attr, value|
-          instance.send("set#{attr.to_s.camelize}", value)
+          instance.send("set#{ActiveSupport::Inflector.camelize(attr.to_s)}", value)
         end
         manager.save instance
         instance.set_root manager.getRoot
@@ -119,11 +122,13 @@ class CloudTmGeoObject < FenixGeoObject
     
     def all
       manager = CloudTmTransactionManager.manager
-      geo_objects = []
-      manager.withTransaction do
-        geo_objects = manager.getRoot.getGeoObjects
+      geo_objects = manager.withTransaction do
+        _geo_objects = manager.getRoot.getGeoObjects
+        puts "Inside transaction are: #{_geo_objects.size}"
+        _geo_objects
       end
-      geo_objects
+      puts "Outside transaction are: #{geo_objects.size}"
+      return geo_objects
     end
 
   end
@@ -136,12 +141,14 @@ FenixLoader.load({
 })
 
 
-geo_objects = CloudTmGeoObject.all
-puts "Found #{geo_objects.inspect} in the cache"
-
-geo_object = CloudTmGeoObject.create({
+CloudTmGeoObject.create({
   :latitude => 45,
   :longitude => 23
 })
 
-puts "Created geo object: lat = #{geo_object.latitude} - lon = #{geo_object.longitude}"
+geo_objects = CloudTmGeoObject.all
+puts "Found #{geo_objects.size} in the cache"
+
+geo_objects.each do |geo_object|
+  puts "Created geo object: lat = #{geo_object.latitude} - lon = #{geo_object.longitude}"
+end

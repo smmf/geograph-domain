@@ -88,18 +88,20 @@ public class GeoObjectTest {
     });
 
 
-    txManager.withTransaction(new TransactionalCommand<Void>() {
+    GeoObject geoObject = txManager.withTransaction(new TransactionalCommand<GeoObject>() {
       // load the persisted geo object and check latitude and longitude
 
       @Override
-      public Void doIt() {
+      public GeoObject doIt() {
         Root root = (Root) txManager.getRoot();
         GeoObject go = root.getGeoObjects().get(0);
         assertEquals(new Integer(42), go.getLatitude());
         assertEquals(new Integer(71), go.getLongitude());
-        return VOID;
+        return go;
       }
     });
+    assertEquals(new Integer(42), geoObject.getLatitude());
+    assertEquals(new Integer(71), geoObject.getLongitude());
   }
 
   @Test
