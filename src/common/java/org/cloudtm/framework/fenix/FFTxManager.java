@@ -10,6 +10,8 @@ import org.cloudtm.framework.TxManager;
 
 public class FFTxManager extends TxManager {
 
+  private Boolean tryReadOnly = null;
+
   public FFTxManager() {
     Config config = new Config() {
 
@@ -74,19 +76,26 @@ public class FFTxManager extends TxManager {
     }
   }
 
+  public void setReadOnly(Boolean ronly) {
+    tryReadOnly = ronly;
+  }
+
+  @Override
   public <T> T getRoot() {
     return (T) FenixFramework.getRoot();
   }
 
+  @Override
   public <T> T getDomainObject(Class<T> clazz, Object oid) {
     return (T) pt.ist.fenixframework.pstm.AbstractDomainObject.fromOID((Long) oid);
   }
 
+  @Override
   public <T> T withTransaction(final TransactionalCommand<T> command) {
     T result = null;
-    boolean tryReadOnly = false;
-//    readonly first approach temporarily disabled
-//    boolean tryReadOnly = true;
+
+    if(tryReadOnly == null) tryReadOnly = true;
+    
     while (true) {
       Transaction.begin(tryReadOnly);
       boolean finished = false;

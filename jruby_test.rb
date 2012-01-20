@@ -1,6 +1,6 @@
 require 'java'
-#require 'rubygems'
-#require 'active_support/all'
+require 'rubygems'
+require 'active_support/all'
 
 
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
@@ -39,6 +39,26 @@ CloudTmInit = Java::OrgCloudtmFramework::Init
 CloudTmTxSystem = Java::OrgCloudtmFramework::TxSystem
 CloudTmConfig = Java::OrgCloudtmFramework::CloudtmConfig
 
+
+FenixTransactionManager = Java::OrgCloudtmFrameworkFenix::FFTxManager
+IllegalWriteException = Java::PtIstFenixframeworkPstm::IllegalWriteException
+
+class FenixTransactionManager
+  def withTransaction_with_exception(&block)
+    begin
+      withTransaction_without_exception(block)
+    rescue NativeException => e
+      if e.cause.is_a?(IllegalWriteException)
+        setReadOnly(false)
+        withTransaction_without_exception(block)
+      else
+        raise e.cause
+      end
+    end
+  end
+  
+  alias_method_chain(:withTransaction, :exception)
+end
 
 # In order to bypass the use of the constructor with closure, that causes problems
 # in the jruby binding.
