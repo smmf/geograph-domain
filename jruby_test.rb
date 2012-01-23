@@ -1,6 +1,6 @@
 require 'java'
-require 'rubygems'
-require 'active_support/all'
+#require 'rubygems'
+#require 'active_support/all'
 
 
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
@@ -141,12 +141,13 @@ end
 
 
 class FenixGeoObject
+  # fake to_json method
   def to_json
     {
       :id => oid,
-      :latitude => latitude,
-      :longitude => longitude
-    }.to_json
+      :latitude => latitude.to_s,
+      :longitude => longitude.to_s
+    }
   end
 
   class << self
@@ -184,12 +185,13 @@ FenixLoader.load({
 
 
 go = FenixGeoObject.create({
-    :latitude => 45,
-    :longitude => 23
+    :latitude => java.math.BigDecimal.new("45.4324"),
+    :longitude => java.math.BigDecimal.new("23.6543")
   })
-puts "Created #{go}"
+puts "Created #{go.inspect}"
 
 FenixGeoObject.all.each do |geo_object|
-  go_des = JSON.parse(geo_object)
-  puts "Created geo object: lat = #{go_des['latitude']} - lon = #{go_des['longitude']}"
+#  go_des = JSON.parse(geo_object)
+#  puts "Created geo object: lat = #{go_des['latitude']} - lon = #{go_des['longitude']}"
+  puts "Created geo object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
 end
