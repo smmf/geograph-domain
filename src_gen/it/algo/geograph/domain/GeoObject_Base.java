@@ -2,7 +2,7 @@ package it.algo.geograph.domain;
 
 import pt.ist.fenixframework.pstm.VBox;
 import pt.ist.fenixframework.pstm.RelationList;
-import pt.ist.fenixframework.ValueTypeSerializationGenerator.*;
+import pt.ist.fenixframework.serialization.ValueTypeSerializationGenerator.*;
 public abstract class GeoObject_Base extends pt.ist.fenixframework.pstm.OneBoxDomainObject {
     public static pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.GeoObject,it.algo.geograph.domain.Root> role$$root = new pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.GeoObject,it.algo.geograph.domain.Root>() {
         public it.algo.geograph.domain.Root getValue(it.algo.geograph.domain.GeoObject o1) {
@@ -44,21 +44,21 @@ public abstract class GeoObject_Base extends pt.ist.fenixframework.pstm.OneBoxDo
         super();
     }
     
-    public java.lang.Integer getLatitude() {
+    public java.math.BigDecimal getLatitude() {
         pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "latitude");
         return ((DO_State)this.get$obj$state(false)).latitude;
     }
     
-    public void setLatitude(java.lang.Integer latitude) {
+    public void setLatitude(java.math.BigDecimal latitude) {
         ((DO_State)this.get$obj$state(true)).latitude = latitude;
     }
     
-    public java.lang.Integer getLongitude() {
+    public java.math.BigDecimal getLongitude() {
         pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "longitude");
         return ((DO_State)this.get$obj$state(false)).longitude;
     }
     
-    public void setLongitude(java.lang.Integer longitude) {
+    public void setLongitude(java.math.BigDecimal longitude) {
         ((DO_State)this.get$obj$state(true)).longitude = longitude;
     }
     
@@ -97,8 +97,8 @@ public abstract class GeoObject_Base extends pt.ist.fenixframework.pstm.OneBoxDo
         
     }
     protected static class DO_State extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State {
-        private java.lang.Integer latitude;
-        private java.lang.Integer longitude;
+        private java.math.BigDecimal latitude;
+        private java.math.BigDecimal longitude;
         private it.algo.geograph.domain.Root root;
         protected void copyTo(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  newState) {
             super.copyTo(newState);
@@ -117,14 +117,14 @@ public abstract class GeoObject_Base extends pt.ist.fenixframework.pstm.OneBoxDo
         protected static class SerializedForm extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State.SerializedForm {
             private static final long serialVersionUID = 1L;
             
-            private java.lang.Integer latitude;
-            private java.lang.Integer longitude;
+            private Serialized$Decimal latitude;
+            private Serialized$Decimal longitude;
             private it.algo.geograph.domain.Root root;
             
             protected  SerializedForm(DO_State obj) {
                 super(obj);
-                this.latitude = obj.latitude;
-                this.longitude = obj.longitude;
+                this.latitude = pt.ist.fenixframework.serialization.ValueTypeSerializationGenerator.serialize$Decimal(obj.latitude);
+                this.longitude = pt.ist.fenixframework.serialization.ValueTypeSerializationGenerator.serialize$Decimal(obj.longitude);
                 this.root = obj.root;
                 
             }
@@ -138,8 +138,8 @@ public abstract class GeoObject_Base extends pt.ist.fenixframework.pstm.OneBoxDo
             protected void fillInState(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State obj) {
                 super.fillInState(obj);
                 DO_State state = (DO_State)obj;
-                state.latitude = this.latitude;
-                state.longitude = this.longitude;
+                state.latitude = pt.ist.fenixframework.serialization.ValueTypeSerializationGenerator.deSerialize$Decimal(this.latitude);
+                state.longitude = pt.ist.fenixframework.serialization.ValueTypeSerializationGenerator.deSerialize$Decimal(this.longitude);
                 state.root = this.root;
                 
             }

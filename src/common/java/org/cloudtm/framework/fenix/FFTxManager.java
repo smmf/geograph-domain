@@ -10,8 +10,6 @@ import org.cloudtm.framework.TxManager;
 
 public class FFTxManager extends TxManager {
 
-  private Boolean tryReadOnly = null;
-
   public FFTxManager() {
     Config config = new Config() {
 
@@ -76,10 +74,6 @@ public class FFTxManager extends TxManager {
     }
   }
 
-  public void setReadOnly(Boolean ronly) {
-    tryReadOnly = ronly;
-  }
-
   @Override
   public <T> T getRoot() {
     return (T) FenixFramework.getRoot();
@@ -93,8 +87,7 @@ public class FFTxManager extends TxManager {
   @Override
   public <T> T withTransaction(final TransactionalCommand<T> command) {
     T result = null;
-
-    if(tryReadOnly == null) tryReadOnly = true;
+    boolean tryReadOnly = true;
     
     while (true) {
       Transaction.begin(tryReadOnly);

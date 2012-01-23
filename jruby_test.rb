@@ -12,13 +12,9 @@ $CLASSPATH << ISPN_CONF_PATH
 LIB_PATH = File.join(CURRENT_PATH, 'lib')
 $CLASSPATH << LIB_PATH
 Dir[File.join(LIB_PATH, '*.jar')].each{|jar|
-  #next if jar.match(/fenix|jvstm/)
   #puts "Loading JAR: #{jar}"
   require jar
 }
-
-#require File.join(LIB_PATH, 'jvstm.jar')
-#require File.join(LIB_PATH, 'fenix-framework-r53358.jar')
 
 # load the domain model jar
 DIST_PATH = File.join(CURRENT_PATH, 'dist')
@@ -42,22 +38,45 @@ CloudTmConfig = Java::OrgCloudtmFramework::CloudtmConfig
 
 FenixTransactionManager = Java::OrgCloudtmFrameworkFenix::FFTxManager
 IllegalWriteException = Java::PtIstFenixframeworkPstm::IllegalWriteException
+CommitException = Java::Jvstm::CommitException
+WriteOnReadException = Java::Jvstm::WriteOnReadException
+UnableToDetermineIdException = Java::PtIstFenixframeworkPstm::AbstractDomainObject::UnableToDetermineIdException
+
 
 class FenixTransactionManager
-  def withTransaction_with_exception(&block)
-    begin
-      withTransaction_without_exception(block)
-    rescue NativeException => e
-      if e.cause.is_a?(IllegalWriteException)
-        setReadOnly(false)
-        withTransaction_without_exception(block)
-      else
-        raise e.cause
+  def withTransaction(&block)
+    result = nil
+    try_read_only = true
+
+    while(true) do
+      Java::PtIstFenixframeworkPstm::Transaction.begin(try_read_only)
+      finished = false
+      begin
+        result = block.call
+        Java::PtIstFenixframeworkPstm::Transaction.commit
+        finished = true
+        return result
+      rescue CommitException => ce
+        FenixTransaction.abort
+        finished = true
+      rescue WriteOnReadException => wore
+        puts "jvstm.WriteOnReadException"
+        Java::PtIstFenixframeworkPstm::Transaction.abort
+        finished = true
+        try_read_only = false
+      rescue UnableToDetermineIdException => unableToDetermineIdException
+        puts "Restaring TX: unable to determine id. Cause: #{unableToDetermineIdException.getCause}"
+        puts unableToDetermineIdException.to_s
+        Java::PtIstFenixframeworkPstm::Transaction.abort
+        finished = true
+      ensure
+        unless finished
+          Java::PtIstFenixframeworkPstm::Transaction.abort
+        end
       end
     end
   end
   
-  alias_method_chain(:withTransaction, :exception)
 end
 
 # In order to bypass the use of the constructor with closure, that causes problems
@@ -121,35 +140,37 @@ class FenixLoader
 end
 
 
-class CloudTmGeoObject < FenixGeoObject
+class FenixGeoObject
+  def to_json
+    {
+      :id => oid,
+      :latitude => latitude,
+      :longitude => longitude
+    }.to_json
+  end
+
   class << self
 
     def create attrs = {}
-      instance = nil
       manager = CloudTmTransactionManager.manager
       manager.withTransaction do
 
         instance = FenixGeoObject.new
         attrs.each do |attr, value|
-          #instance.send("set#{ActiveSupport::Inflector.camelize(attr.to_s)}", value)
           instance.send("#{attr}=", value)
         end
         manager.save instance
         instance.set_root manager.getRoot
-        java.lang.Void
+        instance.to_json
       end
-      instance
     end
     
     def all
       manager = CloudTmTransactionManager.manager
-      geo_objects = manager.withTransaction do
+      manager.withTransaction do
         _geo_objects = manager.getRoot.getGeoObjects
-        puts "Inside transaction are: #{_geo_objects.size}"
-        _geo_objects
+        _geo_objects.map(&:to_json)
       end
-      puts "Outside transaction are: #{geo_objects.size}"
-      return geo_objects
     end
 
   end
@@ -157,19 +178,18 @@ end
 
 
 FenixLoader.load({
-  :dml => 'geograph.dml',
-  :conf => 'infinispanNoFile.xml'
-})
+    :dml => 'geograph.dml',
+    :conf => 'infinispanNoFile.xml'
+  })
 
 
-CloudTmGeoObject.create({
-  :latitude => 45,
-  :longitude => 23
-})
+go = FenixGeoObject.create({
+    :latitude => 45,
+    :longitude => 23
+  })
+puts "Created #{go}"
 
-geo_objects = CloudTmGeoObject.all
-puts "Found #{geo_objects.size} in the cache"
-
-geo_objects.each do |geo_object|
-  puts "Created geo object: lat = #{geo_object.latitude} - lon = #{geo_object.longitude}"
+FenixGeoObject.all.each do |geo_object|
+  go_des = JSON.parse(geo_object)
+  puts "Created geo object: lat = #{go_des['latitude']} - lon = #{go_des['longitude']}"
 end

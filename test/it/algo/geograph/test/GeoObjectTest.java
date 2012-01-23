@@ -74,12 +74,12 @@ public class GeoObjectTest {
       @Override
       public Void doIt() {
         GeoObject geoObject = new GeoObject();
-        // BigDecimal lat = new BigDecimal("42.438878");
-        // BigDecimal lon = new BigDecimal("-71.119277");
-        // geoObject.setLatitude(lat);
-        // geoObject.setLongitude(lon);
-        geoObject.setLatitude(new Integer(42));
-        geoObject.setLongitude(new Integer(71));
+         BigDecimal lat = new BigDecimal("42.438878");
+         BigDecimal lon = new BigDecimal("-71.119277");
+         geoObject.setLatitude(lat);
+         geoObject.setLongitude(lon);
+//        geoObject.setLatitude(new Integer(42));
+//        geoObject.setLongitude(new Integer(71));
         txManager.save(geoObject);
         Root root = (Root) txManager.getRoot();
         geoObject.setRoot(root);
@@ -88,20 +88,18 @@ public class GeoObjectTest {
     });
 
 
-    GeoObject geoObject = txManager.withTransaction(new TransactionalCommand<GeoObject>() {
+    txManager.withTransaction(new TransactionalCommand<GeoObject>() {
       // load the persisted geo object and check latitude and longitude
 
       @Override
       public GeoObject doIt() {
         Root root = (Root) txManager.getRoot();
         GeoObject go = root.getGeoObjects().get(0);
-        assertEquals(new Integer(42), go.getLatitude());
-        assertEquals(new Integer(71), go.getLongitude());
+        assertEquals(new BigDecimal("42.438878"), go.getLatitude());
+        assertEquals(new BigDecimal("-71.119277"), go.getLongitude());
         return go;
       }
     });
-    assertEquals(new Integer(42), geoObject.getLatitude());
-    assertEquals(new Integer(71), geoObject.getLongitude());
   }
 
   @Test
