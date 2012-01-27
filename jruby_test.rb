@@ -191,7 +191,30 @@ go = FenixGeoObject.create({
 puts "Created #{go.inspect}"
 
 FenixGeoObject.all.each do |geo_object|
-#  go_des = JSON.parse(geo_object)
-#  puts "Created geo object: lat = #{go_des['latitude']} - lon = #{go_des['longitude']}"
   puts "Created geo object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
 end
+
+#puts "Json version: #{FenixGeoObject.all.to_json}"
+
+FenixGeoObject.create({
+    :latitude => java.math.BigDecimal.new("72.6426"),
+    :longitude => java.math.BigDecimal.new("32.5425")
+  })
+
+_manager = CloudTmTransactionManager.manager
+_manager.withTransaction do
+   _gobjects = _manager.getRoot.getGeoObjects
+   go1 = _gobjects[0]
+   go2 = _gobjects[1]
+   go1.addIncoming(go2)
+end
+
+_manager.withTransaction do
+  _manager.getRoot.getGeoObjects.each do |gobj|
+    if gobj.hasAnyIncoming
+      puts "Link from: #{gobj.incoming[0].to_json.inspect}"
+      puts "Link to: #{gobj.incoming[0].outcoming[0].to_json.inspect}"
+    end
+  end
+end
+
