@@ -62,6 +62,15 @@ public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainOb
         ((DO_State)this.get$obj$state(true)).enabled = enabled;
     }
     
+    public java.lang.Integer getDistance() {
+        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "distance");
+        return ((DO_State)this.get$obj$state(false)).distance;
+    }
+    
+    public void setDistance(java.lang.Integer distance) {
+        ((DO_State)this.get$obj$state(true)).distance = distance;
+    }
+    
     public it.algo.geograph.domain.Root getRoot() {
         pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "root");
         return ((DO_State)this.get$obj$state(false)).root;
@@ -99,12 +108,14 @@ public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainOb
     protected static class DO_State extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State {
         private java.lang.String name;
         private boolean enabled;
+        private java.lang.Integer distance;
         private it.algo.geograph.domain.Root root;
         protected void copyTo(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  newState) {
             super.copyTo(newState);
             DO_State newCasted = (DO_State)newState;
             newCasted.name = this.name;
             newCasted.enabled = this.enabled;
+            newCasted.distance = this.distance;
             newCasted.root = this.root;
             
         }
@@ -119,12 +130,14 @@ public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainOb
             
             private java.lang.String name;
             private boolean enabled;
+            private java.lang.Integer distance;
             private it.algo.geograph.domain.Root root;
             
             protected  SerializedForm(DO_State obj) {
                 super(obj);
                 this.name = obj.name;
                 this.enabled = obj.enabled;
+                this.distance = obj.distance;
                 this.root = obj.root;
                 
             }
@@ -140,6 +153,7 @@ public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainOb
                 DO_State state = (DO_State)obj;
                 state.name = this.name;
                 state.enabled = this.enabled;
+                state.distance = this.distance;
                 state.root = this.root;
                 
             }
