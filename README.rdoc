@@ -1,6 +1,6 @@
 == Geograph Domain Model (Ogm - Fenix - Infinispan)
 
-This is the Fenix (soon also Ogm) domain model of Geograph[http://github.com/algorithmica/geograph].
+This is the Cloud-TM domain model of Geograph[http://github.com/algorithmica/geograph].
  
 == Getting started
 
