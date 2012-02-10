@@ -1,6 +1,4 @@
 require 'java'
-#require 'rubygems'
-#require 'active_support/all'
 
 
 CURRENT_PATH = File.expand_path File.dirname(__FILE__)
@@ -76,7 +74,7 @@ class FenixTransactionManager
       end
     end
   end
-  
+
 end
 
 # In order to bypass the use of the constructor with closure, that causes problems
@@ -165,7 +163,7 @@ class FenixGeoObject
         instance.to_json
       end
     end
-    
+
     def all
       manager = CloudTmTransactionManager.manager
       manager.withTransaction do
@@ -217,4 +215,3 @@ _manager.withTransaction do
     end
   end
 end
-
