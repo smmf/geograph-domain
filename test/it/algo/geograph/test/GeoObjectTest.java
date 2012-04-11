@@ -53,7 +53,7 @@ public class GeoObjectTest {
 
       {
         domainModelPath = "src/common/dml/geograph.dml";
-        dbAlias = "config/infinispanNoFile.xml";
+        dbAlias = "config/infinispanFile.xml";
         repositoryType = pt.ist.fenixframework.Config.RepositoryType.INFINISPAN;
         rootClass = Root.class;
       }

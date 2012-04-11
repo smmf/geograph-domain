@@ -72,6 +72,10 @@
 
     -->
 
+   <target name="gen-jar" depends="compile">
+     <jar destfile="${dist.jar}" basedir="classes"/>
+   </target>
+   
     <target name="-post-compile">
         <copy todir="${build.classes.dir}/META-INF" >
             <fileset dir="classes/META-INF" excludes="${build.classes.excludes},${excludes}" includes="${includes}">
@@ -82,4 +86,5 @@
             </fileset>
         </copy>
     </target>
+
 </project>
