@@ -72,7 +72,12 @@ public class HibOgmTxManager extends TxManager {
     while (!txFinished) {
       EntityManager em = null;
       try {
-        transactionManager.begin();
+        boolean inTopLevelTransaction = false;
+        // the purpose of this test is to enable reuse of the existing transaction if any
+        if (transactionManager.getTransaction() == null) {
+          transactionManager.begin();
+          inTopLevelTransaction = true;
+        }
         em = emf.createEntityManager();
         currentEntityManager.set(em);
 
@@ -81,7 +86,9 @@ public class HibOgmTxManager extends TxManager {
 
         em.flush();
         em.close();
-        transactionManager.commit();
+        if (inTopLevelTransaction) {
+          transactionManager.commit();
+        }
         txFinished = true;
         return result;
       } catch (org.infinispan.CacheException ce) {
