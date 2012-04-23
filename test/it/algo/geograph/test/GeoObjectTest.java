@@ -59,7 +59,7 @@ public class GeoObjectTest {
       }
     };
 
-    Init.initializeTxSystem(config, Framework.FENIX);
+    Init.initializeTxSystem(config, Framework.ISPN);
     txManager = TxSystem.getManager();
   }
 
@@ -82,6 +82,7 @@ public class GeoObjectTest {
         txManager.save(geoObject);
         Root root = (Root) txManager.getRoot();
         geoObject.setRoot(root);
+        root.setNumGeoObjectIds(1);
         return VOID;
       }
     });
@@ -93,7 +94,7 @@ public class GeoObjectTest {
       @Override
       public GeoObject doIt() {
         Root root = (Root) txManager.getRoot();
-        GeoObject go = root.getGeoObjects().get(0);
+        GeoObject go = (GeoObject) root.getGeoObjects().toArray()[0];
         assertEquals(new BigDecimal("42.438878"), go.getLatitude());
         assertEquals(new BigDecimal("-71.119277"), go.getLongitude());
         return go;
@@ -127,7 +128,7 @@ public class GeoObjectTest {
 
         // Associate geo objects with a link
         geoObject1.addIncoming(geoObject2);
-        assertEquals(lat1, ((GeoObject) geoObject2.getOutcoming().get(0)).getLatitude());
+        assertEquals(lat1, ((GeoObject) geoObject2.getOutcoming().toArray()[0]).getLatitude());
 //        txManager.save(edge);
         return VOID;
       }
@@ -142,8 +143,8 @@ public class GeoObjectTest {
         while (iter.hasNext()) {
           GeoObject go = (GeoObject) iter.next();
           if(go.getIncomingCount() > 0){
-            GeoObject goFrom = go.getIncoming().get(0);
-            assertEquals(go, goFrom.getOutcoming().get(0));
+            GeoObject goFrom = (GeoObject) go.getIncoming().toArray()[0];
+            assertEquals(go, goFrom.getOutcoming().toArray()[0]);
           }
         }
         Agent agent = new Agent();
@@ -179,7 +180,7 @@ public class GeoObjectTest {
 
         // associate the geo obj to the agent
         agent.addGeoObjects(geoObject);
-        assertEquals(geoObject, agent.getGeoObjects().get(0));
+        assertEquals(geoObject, agent.getGeoObjects().toArray()[0]);
 
         // remove geo object from agent
         agent.removeGeoObjects(geoObject);
@@ -219,7 +220,7 @@ public class GeoObjectTest {
 
         // associate the geo obj to the agent
         agent.addGeoObjects(geoObject);
-        assertEquals(geoObject, agent.getGeoObjects().get(0));
+        assertEquals(geoObject, agent.getGeoObjects().toArray()[0]);
 
         // remove agent
         root.removeAgents(agent);

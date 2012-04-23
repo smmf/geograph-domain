@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project basedir="." default="compile" name="TPCW">
+<project basedir="." default="compile" name="Geograph">
   
   <!-- first, access environment variables as properties -->
   <property environment="env"/>
@@ -12,7 +12,7 @@
   <!-- main src dirs -->
   <property name="src.dir" location="src"/>
   <property name="common.src.dir" location="${src.dir}/common"/>
-  <property name="ispn.src.dir" location="${src.dir}/ispn"/>
+  <property name="ispn.src.dir" location="${src.dir}/common"/>
   
   <!-- common src dirs -->
   <property name="dml.common.src.dir" location="${common.src.dir}/dml"/>
@@ -28,19 +28,20 @@
   <property name="config.dir" location="config"/>
   <property name="build.dir" location="classes"/>
   <property name="dist.dir" location="dist"/>
-  <property name="domain.dml" location="${dml.common.src.dir}/tpcw.dml"/>
+  <property name="domain.dml" location="${dml.common.src.dir}/geograph.dml"/>
 
   <property name="build-devel.dir" location="classes-devel"/>
   <property name="src-devel.dir" location="src-devel"/>
-  <property name="src.gen.dir" location="src_gen"/>
+  <property name="src.gen.dir" location="src_gen"/> 
+  <!-- <property name="src.gen.dir" location="src/common/java"/> -->
   <property name="src-devel.gen.dir" location="src-devel_gen"/>
   <property name="java.src-devel.dir" location="${src-devel.dir}/java"/>
   <property name="dml.src-devel.dir" location="${src-devel.dir}/dml"/>
 
   <!-- B+Trees in DML -->
   <property name="bplustree.dml" location="${dml.src-devel.dir}/bplustree.dml"/>
-  <property name="ispn.code.generator.file" value="pt/ist/fenixframework/dml/ispn/IspnCodeGenerator.java"/>
-  <property name="ispn.code.generator.class" value="pt.ist.fenixframework.dml.ispn.IspnCodeGenerator"/>
+  <property name="ispn.code.generator.file" value="org/cloudtm/framework/ispn/IspnCodeGenerator.java"/>
+  <property name="ispn.code.generator.class" value="org.cloudtm.framework.ispn.IspnCodeGenerator"/>
 
   <!-- The encoding of all the source files should be the same! -->
   <property name="javac.encoding" value="UTF-8"/>
@@ -104,13 +105,13 @@
 
     <copy todir="${src.gen.dir}">
       <fileset dir="${java.src-devel.dir}">
-	<include name="**/pt/ist/fenixframework/dml/ispn/**" />
+      <include name="**/org/cloudtm/framework/ispn/**" />
       </fileset>
     </copy>
 
     <copy todir="${build.dir}">
       <fileset dir="${src.gen.dir}">
-	<include name="META-INF/**" />
+      <include name="META-INF/**" />
       </fileset>
     </copy>
   </target>
@@ -177,10 +178,13 @@
   <property name="web-app-env.deploy.context" value="tpcw" />
   <property name="web-app-env.deploy.war.rel-file" value="${app.war.file}" />
   <!-- IMPORTS -->
-  <import file="build_tomcat.xml" />
+  <!-- <import file="build_tomcat.xml" /> -->
 
-  <target name="install" depends="create-war,deploy" description="Creates the war file and install it on the server" />
+  <!-- <target name="install" depends="create-war,deploy" description="Creates the war file and install it on the server" />
   <target name="remove" depends="undeploy" description="Removes the war file from the server" />
+  -->
+  <target name="install" depends="create-war" description="Creates the war file and install it on the server" />
+  <target name="remove" description="Removes the war file from the server" />
   <target name="re-install" depends="remove,install" description="remove -> install" />
 
 </project>

@@ -1,79 +1,71 @@
 package it.algo.geograph.domain;
 
-import pt.ist.fenixframework.pstm.VBox;
-import pt.ist.fenixframework.pstm.RelationList;
-import pt.ist.fenixframework.ValueTypeSerializationGenerator.*;
-public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainObject {
-    public static pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root> role$$root = new pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root>() {
-        public it.algo.geograph.domain.Root getValue(it.algo.geograph.domain.Job o1) {
-            return ((Job_Base.DO_State)o1.get$obj$state(false)).root;
+import org.cloudtm.framework.ispn.IspnTxManager;
+import org.cloudtm.framework.ispn.collections.bplustree.BPlusTree;
+
+public abstract class Job_Base extends org.cloudtm.framework.ispn.AbstractDomainObject {
+    public static dml.runtime.Role<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root> role$$root = new dml.runtime.Role<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root>() {
+        public void add(it.algo.geograph.domain.Job o1, it.algo.geograph.domain.Root o2, dml.runtime.Relation<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root> relation) {
+            if (o1 != null) {
+                it.algo.geograph.domain.Root old2 = o1.getRoot();
+                if (o2 != old2) {
+                    relation.remove(o1, old2);
+                    o1.setRoot$unidirectional(o2);
+                }
+            }
         }
-        public void setValue(it.algo.geograph.domain.Job o1, it.algo.geograph.domain.Root o2) {
-            ((Job_Base.DO_State)o1.get$obj$state(true)).root = o2;
+        public void remove(it.algo.geograph.domain.Job o1, it.algo.geograph.domain.Root o2) {
+            if (o1 != null) {
+                o1.setRoot$unidirectional(null);
+            }
         }
         public dml.runtime.Role<it.algo.geograph.domain.Root,it.algo.geograph.domain.Job> getInverseRole() {
             return it.algo.geograph.domain.Root.role$$jobs;
         }
         
     };
-    public static pt.ist.fenixframework.pstm.LoggingRelation<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root> RootHasJobs = new pt.ist.fenixframework.pstm.LoggingRelation<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root>(role$$root);
+    public static dml.runtime.DirectRelation<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root> RootHasJobs = new dml.runtime.DirectRelation<it.algo.geograph.domain.Job,it.algo.geograph.domain.Root>(role$$root);
     static {
         it.algo.geograph.domain.Root.RootHasJobs = RootHasJobs.getInverseRelation();
     }
     
-    static {
-        RootHasJobs.setRelationName("it.algo.geograph.domain.Job.RootHasJobs");
-    }
-    
-    
-    
-    
-    private void initInstance() {
-        initInstance(true);
-    }
-    
-    private void initInstance(boolean allocateOnly) {
+    public  Job_Base() {
         
     }
     
-    {
-        initInstance(false);
-    }
-    
-    protected  Job_Base() {
-        super();
-    }
-    
     public java.lang.String getName() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "name");
-        return ((DO_State)this.get$obj$state(false)).name;
+        Object obj = IspnTxManager.cacheGet(getOid() + ":name");
+        if (obj == null || obj instanceof NullClass) return null;
+        return (java.lang.String)obj;
     }
     
     public void setName(java.lang.String name) {
-        ((DO_State)this.get$obj$state(true)).name = name;
+        IspnTxManager.cachePut(getOid() + ":name", (name == null ? NULL_OBJECT : name));
     }
     
     public boolean getEnabled() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "enabled");
-        return ((DO_State)this.get$obj$state(false)).enabled;
+        Object obj = IspnTxManager.cacheGet(getOid() + ":enabled");
+        if (obj == null || obj instanceof NullClass) return false;
+        return (Boolean)obj;
     }
     
     public void setEnabled(boolean enabled) {
-        ((DO_State)this.get$obj$state(true)).enabled = enabled;
+        IspnTxManager.cachePut(getOid() + ":enabled", enabled);
     }
     
     public java.lang.Integer getDistance() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "distance");
-        return ((DO_State)this.get$obj$state(false)).distance;
+        Object obj = IspnTxManager.cacheGet(getOid() + ":distance");
+        if (obj == null || obj instanceof NullClass) return null;
+        return (java.lang.Integer)obj;
     }
     
     public void setDistance(java.lang.Integer distance) {
-        ((DO_State)this.get$obj$state(true)).distance = distance;
+        IspnTxManager.cachePut(getOid() + ":distance", (distance == null ? NULL_OBJECT : distance));
     }
     
     public it.algo.geograph.domain.Root getRoot() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "root");
-        return ((DO_State)this.get$obj$state(false)).root;
+        Object oid = IspnTxManager.cacheGet(getOid() + ":root");
+        return (oid == null || oid instanceof NullClass ? null : (it.algo.geograph.domain.Root)fromOid((String)oid));
     }
     
     public void setRoot(it.algo.geograph.domain.Root root) {
@@ -88,78 +80,8 @@ public abstract class Job_Base extends pt.ist.fenixframework.pstm.OneBoxDomainOb
         setRoot(null);
     }
     
-    protected boolean checkDisconnected() {
-        if (hasRoot()) return false;
-        return true;
-        
-    }
-    protected dml.runtime.Relation get$$relationFor(String attrName) {
-        return super.get$$relationFor(attrName);
-        
-    }
-    protected pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  make$newState() {
-        return new DO_State();
-        
-    }
-    protected void create$allLists() {
-        super.create$allLists();
-        
-    }
-    protected static class DO_State extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State {
-        private java.lang.String name;
-        private boolean enabled;
-        private java.lang.Integer distance;
-        private it.algo.geograph.domain.Root root;
-        protected void copyTo(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  newState) {
-            super.copyTo(newState);
-            DO_State newCasted = (DO_State)newState;
-            newCasted.name = this.name;
-            newCasted.enabled = this.enabled;
-            newCasted.distance = this.distance;
-            newCasted.root = this.root;
-            
-        }
-        
-        // serialization code
-        protected Object writeReplace() throws java.io.ObjectStreamException {
-            return new SerializedForm(this);
-        }
-        
-        protected static class SerializedForm extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State.SerializedForm {
-            private static final long serialVersionUID = 1L;
-            
-            private java.lang.String name;
-            private boolean enabled;
-            private java.lang.Integer distance;
-            private it.algo.geograph.domain.Root root;
-            
-            protected  SerializedForm(DO_State obj) {
-                super(obj);
-                this.name = obj.name;
-                this.enabled = obj.enabled;
-                this.distance = obj.distance;
-                this.root = obj.root;
-                
-            }
-            
-             Object readResolve() throws java.io.ObjectStreamException {
-                DO_State newState = new DO_State();
-                fillInState(newState);
-                return newState;
-            }
-            
-            protected void fillInState(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State obj) {
-                super.fillInState(obj);
-                DO_State state = (DO_State)obj;
-                state.name = this.name;
-                state.enabled = this.enabled;
-                state.distance = this.distance;
-                state.root = this.root;
-                
-            }
-            
-        }
-        
+    public void setRoot$unidirectional(it.algo.geograph.domain.Root root) {
+        IspnTxManager.cachePut(getOid() + ":root", (root == null ? NULL_OBJECT : root.getOid()));
     }
     
 }

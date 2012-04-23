@@ -1,15 +1,23 @@
 package it.algo.geograph.domain;
 
-import pt.ist.fenixframework.pstm.VBox;
-import pt.ist.fenixframework.pstm.RelationList;
-import pt.ist.fenixframework.ValueTypeSerializationGenerator.*;
-public abstract class Agent_Base extends pt.ist.fenixframework.pstm.OneBoxDomainObject {
-    public static pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root> role$$root = new pt.ist.fenixframework.pstm.dml.RoleOne<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root>() {
-        public it.algo.geograph.domain.Root getValue(it.algo.geograph.domain.Agent o1) {
-            return ((Agent_Base.DO_State)o1.get$obj$state(false)).root;
+import org.cloudtm.framework.ispn.IspnTxManager;
+import org.cloudtm.framework.ispn.collections.bplustree.BPlusTree;
+
+public abstract class Agent_Base extends org.cloudtm.framework.ispn.AbstractDomainObject {
+    public static dml.runtime.Role<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root> role$$root = new dml.runtime.Role<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root>() {
+        public void add(it.algo.geograph.domain.Agent o1, it.algo.geograph.domain.Root o2, dml.runtime.Relation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root> relation) {
+            if (o1 != null) {
+                it.algo.geograph.domain.Root old2 = o1.getRoot();
+                if (o2 != old2) {
+                    relation.remove(o1, old2);
+                    o1.setRoot$unidirectional(o2);
+                }
+            }
         }
-        public void setValue(it.algo.geograph.domain.Agent o1, it.algo.geograph.domain.Root o2) {
-            ((Agent_Base.DO_State)o1.get$obj$state(true)).root = o2;
+        public void remove(it.algo.geograph.domain.Agent o1, it.algo.geograph.domain.Root o2) {
+            if (o1 != null) {
+                o1.setRoot$unidirectional(null);
+            }
         }
         public dml.runtime.Role<it.algo.geograph.domain.Root,it.algo.geograph.domain.Agent> getInverseRole() {
             return it.algo.geograph.domain.Root.role$$agents;
@@ -18,58 +26,36 @@ public abstract class Agent_Base extends pt.ist.fenixframework.pstm.OneBoxDomain
     };
     public static dml.runtime.RoleMany<it.algo.geograph.domain.Agent,it.algo.geograph.domain.GeoObject> role$$geoObjects = new dml.runtime.RoleMany<it.algo.geograph.domain.Agent,it.algo.geograph.domain.GeoObject>() {
         public dml.runtime.RelationBaseSet<it.algo.geograph.domain.GeoObject> getSet(it.algo.geograph.domain.Agent o1) {
-            return ((Agent_Base)o1).get$rl$geoObjects();
+            return (org.cloudtm.framework.ispn.RelationSet<it.algo.geograph.domain.Agent,it.algo.geograph.domain.GeoObject>)o1.getGeoObjects();
         }
         public dml.runtime.Role<it.algo.geograph.domain.GeoObject,it.algo.geograph.domain.Agent> getInverseRole() {
             return it.algo.geograph.domain.GeoObject.role$$agent;
         }
         
     };
-    public static pt.ist.fenixframework.pstm.LoggingRelation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root> RootHasAgents = new pt.ist.fenixframework.pstm.LoggingRelation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root>(role$$root);
+    public static dml.runtime.DirectRelation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root> RootHasAgents = new dml.runtime.DirectRelation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.Root>(role$$root);
     static {
         it.algo.geograph.domain.Root.RootHasAgents = RootHasAgents.getInverseRelation();
     }
-    
-    static {
-        RootHasAgents.setRelationName("it.algo.geograph.domain.Agent.RootHasAgents");
-    }
     public static dml.runtime.Relation<it.algo.geograph.domain.Agent,it.algo.geograph.domain.GeoObject> AgentHasGeoObjects;
     
-    
-    private RelationList<it.algo.geograph.domain.Agent,it.algo.geograph.domain.GeoObject> get$rl$geoObjects() {
-        return get$$relationList("geoObjects", AgentHasGeoObjects);
+    public  Agent_Base() {
         
-    }
-    
-    
-    private void initInstance() {
-        initInstance(true);
-    }
-    
-    private void initInstance(boolean allocateOnly) {
-        
-    }
-    
-    {
-        initInstance(false);
-    }
-    
-    protected  Agent_Base() {
-        super();
     }
     
     public java.lang.String getStatus() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "status");
-        return ((DO_State)this.get$obj$state(false)).status;
+        Object obj = IspnTxManager.cacheGet(getOid() + ":status");
+        if (obj == null || obj instanceof NullClass) return null;
+        return (java.lang.String)obj;
     }
     
     public void setStatus(java.lang.String status) {
-        ((DO_State)this.get$obj$state(true)).status = status;
+        IspnTxManager.cachePut(getOid() + ":status", (status == null ? NULL_OBJECT : status));
     }
     
     public it.algo.geograph.domain.Root getRoot() {
-        pt.ist.fenixframework.pstm.DataAccessPatterns.noteGetAccess(this, "root");
-        return ((DO_State)this.get$obj$state(false)).root;
+        Object oid = IspnTxManager.cacheGet(getOid() + ":root");
+        return (oid == null || oid instanceof NullClass ? null : (it.algo.geograph.domain.Root)fromOid((String)oid));
     }
     
     public void setRoot(it.algo.geograph.domain.Root root) {
@@ -84,20 +70,22 @@ public abstract class Agent_Base extends pt.ist.fenixframework.pstm.OneBoxDomain
         setRoot(null);
     }
     
-    public int getGeoObjectsCount() {
-        return get$rl$geoObjects().size();
+    public void setRoot$unidirectional(it.algo.geograph.domain.Root root) {
+        IspnTxManager.cachePut(getOid() + ":root", (root == null ? NULL_OBJECT : root.getOid()));
     }
     
-    public boolean hasAnyGeoObjects() {
-        return (! get$rl$geoObjects().isEmpty());
-    }
-    
-    public boolean hasGeoObjects(it.algo.geograph.domain.GeoObject geoObjects) {
-        return get$rl$geoObjects().contains(geoObjects);
-    }
-    
-    public java.util.Set<it.algo.geograph.domain.GeoObject> getGeoObjectsSet() {
-        return get$rl$geoObjects();
+    public java.util.Set<it.algo.geograph.domain.GeoObject> getGeoObjects() {
+        BPlusTree<it.algo.geograph.domain.GeoObject> internalSet;
+        Object oid = IspnTxManager.cacheGet(getOid() + ":geoObjects");
+        if (oid == null || oid instanceof NullClass) {
+            internalSet = new BPlusTree<it.algo.geograph.domain.GeoObject>();
+            IspnTxManager.staticSave(internalSet);
+            IspnTxManager.cachePut(getOid() + ":geoObjects", internalSet.getOid());
+        } else {
+            internalSet = (BPlusTree<it.algo.geograph.domain.GeoObject>)fromOid((String)oid);
+            // no need to test for null.  The entry must exist for sure.
+        }
+        return new org.cloudtm.framework.ispn.RelationSet(this, AgentHasGeoObjects, internalSet);
     }
     
     public void addGeoObjects(it.algo.geograph.domain.GeoObject geoObjects) {
@@ -108,79 +96,24 @@ public abstract class Agent_Base extends pt.ist.fenixframework.pstm.OneBoxDomain
         AgentHasGeoObjects.remove((it.algo.geograph.domain.Agent)this, geoObjects);
     }
     
-    public java.util.List<it.algo.geograph.domain.GeoObject> getGeoObjects() {
-        return get$rl$geoObjects();
+    public java.util.Set<it.algo.geograph.domain.GeoObject> getGeoObjectsSet() {
+        return getGeoObjects();
+    }
+    
+    public int getGeoObjectsCount() {
+        return getGeoObjects().size();
+    }
+    
+    public boolean hasAnyGeoObjects() {
+        return (getGeoObjects().size() != 0);
+    }
+    
+    public boolean hasGeoObjects(it.algo.geograph.domain.GeoObject geoObjects) {
+        return getGeoObjects().contains(geoObjects);
     }
     
     public java.util.Iterator<it.algo.geograph.domain.GeoObject> getGeoObjectsIterator() {
-        return get$rl$geoObjects().iterator();
-    }
-    
-    protected boolean checkDisconnected() {
-        if (hasRoot()) return false;
-        if (hasAnyGeoObjects()) return false;
-        return true;
-        
-    }
-    protected dml.runtime.Relation get$$relationFor(String attrName) {
-        if (attrName.equals("geoObjects")) return AgentHasGeoObjects;
-        return super.get$$relationFor(attrName);
-        
-    }
-    protected pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  make$newState() {
-        return new DO_State();
-        
-    }
-    protected void create$allLists() {
-        super.create$allLists();
-        get$$relationList("geoObjects", AgentHasGeoObjects);
-        
-    }
-    protected static class DO_State extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State {
-        private java.lang.String status;
-        private it.algo.geograph.domain.Root root;
-        protected void copyTo(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State  newState) {
-            super.copyTo(newState);
-            DO_State newCasted = (DO_State)newState;
-            newCasted.status = this.status;
-            newCasted.root = this.root;
-            
-        }
-        
-        // serialization code
-        protected Object writeReplace() throws java.io.ObjectStreamException {
-            return new SerializedForm(this);
-        }
-        
-        protected static class SerializedForm extends pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State.SerializedForm {
-            private static final long serialVersionUID = 1L;
-            
-            private java.lang.String status;
-            private it.algo.geograph.domain.Root root;
-            
-            protected  SerializedForm(DO_State obj) {
-                super(obj);
-                this.status = obj.status;
-                this.root = obj.root;
-                
-            }
-            
-             Object readResolve() throws java.io.ObjectStreamException {
-                DO_State newState = new DO_State();
-                fillInState(newState);
-                return newState;
-            }
-            
-            protected void fillInState(pt.ist.fenixframework.pstm.OneBoxDomainObject.DO_State obj) {
-                super.fillInState(obj);
-                DO_State state = (DO_State)obj;
-                state.status = this.status;
-                state.root = this.root;
-                
-            }
-            
-        }
-        
+        return getGeoObjects().iterator();
     }
     
 }

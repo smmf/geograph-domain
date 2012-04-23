@@ -4,7 +4,6 @@ import java.lang.reflect.InvocationTargetException;
 import pt.ist.fenixframework.Config;
 
 public abstract class TxSystem {
-
   private static final String TX_MGR_FF = "org.cloudtm.framework.fenix.FFTxManager";
   private static final String TX_MGR_HIB = "org.cloudtm.framework.ogm.HibOgmTxManager";
   private static final String TX_MGR_ISPN = "org.cloudtm.framework.ispn.IspnTxManager";
@@ -30,19 +29,22 @@ public abstract class TxSystem {
     try {
       Class<TxManager> txMgr = (Class<TxManager>) Class.forName(txMgrClassname);
       System.out.println("Found TxManager class: " + txMgrClassname);
-      return txMgr.getDeclaredConstructor(Config.class).newInstance(config);
+      TxManager txInstance = txMgr.newInstance();
+      txInstance.configure(config);
+      return txInstance;
+      
     } catch (ClassNotFoundException cnfe) {
       System.out.println("Could not find: " + txMgrClassname);
     } catch (InstantiationException ie) {
       System.out.println("ERROR: Could not instantiate: " + txMgrClassname);
     } catch (IllegalAccessException iae) {
       System.out.println("ERROR: Could not access: " + txMgrClassname);
-    } catch (NoSuchMethodException nse) {
-      System.out.println("ERROR: Could not find a constructor with config argument: " + txMgrClassname);
+//    } catch (NoSuchMethodException nse) {
+//      System.out.println("ERROR: Could not find a constructor with config argument: " + txMgrClassname);
     } catch (IllegalArgumentException iare) {
       System.out.println("ERROR: Illegal argument config: " + txMgrClassname);
-    } catch (InvocationTargetException ite) {
-      System.out.println("ERROR: Invocation target exception: " + txMgrClassname + " - ex: " + ite.getTargetException());
+//    } catch (InvocationTargetException ite) {
+//      System.out.println("ERROR: Invocation target exception: " + txMgrClassname + " - ex: " + ite.getTargetException());
     } catch (ExceptionInInitializerError eiie) {
       System.out.println("ERROR: ExceptionInInitializerError: " + txMgrClassname + " - ex: " + eiie.getCause());
       eiie.printStackTrace();

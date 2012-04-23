@@ -33,7 +33,7 @@
     <locking isolationLevel="REPEATABLE_READ" writeSkewCheck="true" />
 
     <versioning versioningScheme="SIMPLE" enabled="true" />
-
+    <!--
     <loaders passivation="false" shared="false" preload="false">
        <loader class="org.infinispan.loaders.file.FileCacheStore"
            fetchPersistentState="true"
@@ -46,7 +46,7 @@
          </properties>
        </loader>
      </loaders>
-
+    -->
   </default>
 </infinispan>
 

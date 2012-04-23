@@ -1,7 +1,12 @@
 package org.cloudtm.framework.ogm;
 
-//import org.hibernate.transaction.JBossTSStandaloneTransactionManagerLookup;
-import org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup;
+// import org.hibernate.transaction.JBossTSStandaloneTransactionManagerLookup;
+// import org.hibernate.transaction.TransactionManagerLookup;
+// import org.hibernate.transaction.JBossTransactionManagerLookup;
+// import org.hibernate.cache.infinispan.tm.HibernateTransactionManagerLookup;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.ejb.HibernateEntityManagerFactory;
+import org.hibernate.service.jta.platform.spi.JtaPlatform;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -10,84 +15,102 @@ import javax.transaction.TransactionManager;
 
 import org.cloudtm.framework.TransactionalCommand;
 import org.cloudtm.framework.TxManager;
-//import it.algo.geograph.TxSystem;
 
 import it.algo.geograph.domain.*;
-import org.cloudtm.framework.TransactionalCommand;
-import org.cloudtm.framework.TxManager;
+import pt.ist.fenixframework.Config;
 
 public class HibOgmTxManager extends TxManager {
-    // static stuff used for controlling the transactional system and persistence
-    private static final TransactionManager transactionManager = null;
-         //new JBossStandaloneJTAManagerLookup().getTransactionManager();
-        //new JBossTSStandaloneTransactionManagerLookup().getTransactionManager(null);
+  // static stuff used for controlling the transactional system and persistence
+  // private static final TransactionManager transactionManager =
+  //     new HibernateTransactionManagerLookup().getTransactionManager(null);
 
-    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("geograph.persistence.unit");
+  private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("tpcw-persistence-unit");
+  private static final TransactionManager transactionManager;
 
-    private static final ThreadLocal<EntityManager> currentEntityManager = new ThreadLocal<EntityManager>();
+  static {
+    SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) ((HibernateEntityManagerFactory) emf).getSessionFactory();
+    transactionManager = sessionFactory.getServiceRegistry().getService(JtaPlatform.class).retrieveTransactionManager();
+  }
+  private static final ThreadLocal<EntityManager> currentEntityManager = new ThreadLocal<EntityManager>();
 
-    private static EntityManager getEntityManager() {
-        return currentEntityManager.get();
+  private static EntityManager getEntityManager() {
+    return currentEntityManager.get();
+  }
+
+  @Override
+  public void configure(Config config) {
+    // TODO
+  }
+
+  public void save(Object obj) {
+    getEntityManager().persist(obj);
+  }
+
+  @Override
+  public void stop() {
+  }
+
+  // this method should only be invoked within a transaction
+  public <T> T getRoot() {
+    Root root = getDomainObject(Root.class, 1L);
+    if (root == null) { // not found
+      root = Root.createNewRoot();
+      save(root);
     }
+    // System.out.println("DONE");
+    return (T) root;
+  }
 
-    public void save(Object obj) {
-        getEntityManager().persist(obj);
-    }
+  // this method should only be invoked within a transaction
+  public <T> T getDomainObject(Class<T> clazz, Object oid) {
+    return getEntityManager().find(clazz, oid);
+  }
 
-    // this method should only be invoked within a transaction
-    public <T> T getRoot() {
-        Root root = getDomainObject(Root.class, 1L);
-        if (root == null) { // not found
-            root = new Root();
-            save(root);
+  public <T> T withTransaction(final TransactionalCommand<T> command) {
+    T result = null;
+    boolean txFinished = false;
+    while (!txFinished) {
+      EntityManager em = null;
+      try {
+        transactionManager.begin();
+        em = emf.createEntityManager();
+        currentEntityManager.set(em);
+
+        // do some work
+        result = command.doIt();
+
+        em.flush();
+        em.close();
+        transactionManager.commit();
+        txFinished = true;
+        return result;
+      } catch (org.infinispan.CacheException ce) {
+        // System.out.println("CONFLICT!");
+        // tx will be rolled back and retried
+      } catch (Exception e) { // any other exception gets out
+        System.out.println("================================================================================");
+        System.out.println("class: " + e.getClass());
+        System.out.println("cause: " + e.getCause());
+        e.printStackTrace();
+        System.out.println("================================================================================");
+        throw new RuntimeException(e);
+      } finally {
+        if (!txFinished) {
+          try {
+            transactionManager.rollback();
+          } catch (Exception ex) {
+            ex.printStackTrace();
+          }
         }
-        // System.out.println("DONE");
-        return (T)root;
+        currentEntityManager.set(null);
+      }
     }
+    // never reached
+    throw new RuntimeException("code never reached");
+  }
 
-    // this method should only be invoked within a transaction
-    public <T> T getDomainObject(Class<T> clazz, Object oid) {
-        return getEntityManager().find(clazz, oid);
-    }
-
-    public <T> T withTransaction(final TransactionalCommand<T> command) {
-        T result = null;
-        boolean txFinished = false;
-        while (!txFinished) {
-            EntityManager em = null;
-            try {
-                transactionManager.begin();
-                em = emf.createEntityManager();
-                currentEntityManager.set(em);
-
-                // do some work
-                result = command.doIt();
-            
-                em.flush();
-                em.close();
-                transactionManager.commit();
-                txFinished = true;
-                return result;
-            } catch (org.infinispan.CacheException ce) {
-                // System.out.println("CONFLICT!");
-                // tx will be rolled back and retried
-            } catch (Exception e) { // any other exception gets out
-                System.out.println("================================================================================");
-                System.out.println("class: " + e.getClass());
-                System.out.println("cause: " + e.getCause());
-                e.printStackTrace();
-                System.out.println("================================================================================");
-                throw new RuntimeException(e);
-            } finally {
-                if (!txFinished) {
-                    try { transactionManager.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
-                }
-                currentEntityManager.set(null);
-            }
-        }
-        // never reached
-        throw new RuntimeException("code never reached");
-    }
-
-
+  @Override
+  public <T> T withTransaction(final TransactionalCommand<T> command, boolean readonly) {
+    return withTransaction(command);
+  }
 }

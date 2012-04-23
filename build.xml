@@ -76,7 +76,7 @@
      <jar destfile="${dist.jar}" basedir="classes"/>
    </target>
    
-    <target name="-post-compile">
+<!--    <target name="-post-compile">
         <copy todir="${build.classes.dir}/META-INF" >
             <fileset dir="classes/META-INF" excludes="${build.classes.excludes},${excludes}" includes="${includes}">
               <filename name="persistence.xml"/>
@@ -85,6 +85,6 @@
               <filename name="infinispanNoFile.xml"/>
             </fileset>
         </copy>
-    </target>
+    </target>-->
 
 </project>

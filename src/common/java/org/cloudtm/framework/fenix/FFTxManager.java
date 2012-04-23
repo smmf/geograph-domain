@@ -4,75 +4,25 @@ import pt.ist.fenixframework.Config;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.pstm.Transaction;
 
-import it.algo.geograph.domain.*;
 import org.cloudtm.framework.TransactionalCommand;
 import org.cloudtm.framework.TxManager;
 
 public class FFTxManager extends TxManager {
 
-  public FFTxManager() {
-    Config config = new Config() {
+  public FFTxManager() {}
 
-      {
-        domainModelPath = "/geograph.dml";
-        // repositoryType = pt.ist.fenixframework.Config.RepositoryType.HBASE;
-        dbAlias = "//localhost:3306/geographFenix";
-        dbUsername = "geograph";
-        dbPassword = "geograph";
-        // updateRepositoryStructureIfNeeded = true;
-        rootClass = Root.class;
-      }
-    };
-    Config configBDB = new Config() {
-
-      {
-        domainModelPath = "/geograph.dml";
-        dbAlias = "/tmp/geograph-bdb";
-        dbUsername = "";
-        dbPassword = "";
-        repositoryType = pt.ist.fenixframework.Config.RepositoryType.BERKELEYDB;
-        updateRepositoryStructureIfNeeded = true;
-        rootClass = Root.class;
-      }
-    };
-    Config configInfinispanNoFile = new Config() {
-
-      {
-        domainModelPath = "src/common/dml/geograph.dml";
-        dbAlias = "config/infinispanNoFile.xml";
-        repositoryType = pt.ist.fenixframework.Config.RepositoryType.INFINISPAN;
-        rootClass = Root.class;
-      }
-    };
-    Config configInfinispanFile = new Config() {
-
-      {
-        domainModelPath = "/geograph.dml";
-        dbAlias = "infinispanFile.xml";
-        repositoryType = pt.ist.fenixframework.Config.RepositoryType.INFINISPAN;
-        rootClass = Root.class;
-      }
-    };
-    Config configNoRepository = new Config() {
-
-      {
-        domainModelPath = "/geograph.dml";
-        dbAlias = "";
-        repositoryType = pt.ist.fenixframework.Config.RepositoryType.NO_WRITE_REPOSITORY;
-        rootClass = Root.class;
-      }
-    };
-
-    FenixFramework.initialize(configInfinispanNoFile);
-  }
-
-  public FFTxManager(Config config) {
+  @Override
+  public void configure(Config config) {
     try {
       FenixFramework.initialize(config);
     } catch(Error ex) {
       System.out.println("Fenix Framework initialization error: " + ex.getMessage());
     }
   }
+
+  
+  @Override
+  public void stop() {}
 
   @Override
   public <T> T getRoot() {
@@ -85,9 +35,9 @@ public class FFTxManager extends TxManager {
   }
 
   @Override
-  public <T> T withTransaction(final TransactionalCommand<T> command) {
+  public <T> T withTransaction(final TransactionalCommand<T> command, boolean readonly) {
     T result = null;
-    boolean tryReadOnly = true;
+    boolean tryReadOnly = readonly;
     
     while (true) {
       Transaction.begin(tryReadOnly);
@@ -117,5 +67,10 @@ public class FFTxManager extends TxManager {
       }
     }
 
+  }
+
+  @Override
+  public <T> T withTransaction(final TransactionalCommand<T> command) {
+    return withTransaction(command, true);
   }
 }
