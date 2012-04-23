@@ -148,10 +148,19 @@ public class IspnTxManager extends TxManager {
          boolean txFinished = false;
          while (!txFinished) {
             try {
-               transactionManager.begin();
+                boolean inTopLevelTransaction = false;
+                // the purpose of this test is to enable reuse of the existing transaction if any
+                if (transactionManager.getTransaction() == null) {
+                    transactionManager.begin();
+                    inTopLevelTransaction = true;
+                }
+
                // do some work
                result = command.doIt();
-               transactionManager.commit();
+
+               if (inTopLevelTransaction) {
+                   transactionManager.commit();
+               }
                txFinished = true;
                return result;
             } catch (CacheException ce) {
@@ -209,12 +218,20 @@ public class IspnTxManager extends TxManager {
       while (!txFinished) {
          IdentityMap localIdMap = null;
          try {
-            transactionManager.begin();
+             boolean inTopLevelTransaction = false;
+             // the purpose of this test is to enable reuse of the existing transaction if any
+             if (transactionManager.getTransaction() == null) {
+                 transactionManager.begin();
+                 inTopLevelTransaction = true;
+             }
+
             localIdMap = new LocalIdentityMap();
             perTxIdMap.set(localIdMap);
             // do some work
             result = command.doIt();
-            transactionManager.commit();
+            if (inTopLevelTransaction) {
+                transactionManager.commit();
+            }
             txFinished = true;
             return result;
          } catch (CacheException ce) {
