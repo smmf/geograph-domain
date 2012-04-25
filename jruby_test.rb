@@ -178,7 +178,7 @@ end
 
 FenixLoader.load({
     :dml => 'geograph.dml',
-    :conf => 'infinispanFile.xml'
+    :conf => 'infinispanNoFile.xml'
   })
 
 
