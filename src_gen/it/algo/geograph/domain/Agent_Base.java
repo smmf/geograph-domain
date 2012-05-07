@@ -53,6 +53,16 @@ public abstract class Agent_Base extends org.cloudtm.framework.ispn.AbstractDoma
         IspnTxManager.cachePut(getOid() + ":status", (status == null ? NULL_OBJECT : status));
     }
     
+    public java.lang.String getUser() {
+        Object obj = IspnTxManager.cacheGet(getOid() + ":user");
+        if (obj == null || obj instanceof NullClass) return null;
+        return (java.lang.String)obj;
+    }
+    
+    public void setUser(java.lang.String user) {
+        IspnTxManager.cachePut(getOid() + ":user", (user == null ? NULL_OBJECT : user));
+    }
+    
     public it.algo.geograph.domain.Root getRoot() {
         Object oid = IspnTxManager.cacheGet(getOid() + ":root");
         return (oid == null || oid instanceof NullClass ? null : (it.algo.geograph.domain.Root)fromOid((String)oid));

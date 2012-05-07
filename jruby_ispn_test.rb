@@ -206,6 +206,7 @@ _manager.withTransaction do
    go1 = _gobjects.toArray[0]
    go2 = _gobjects.toArray[1]
    go1.addIncoming(go2)
+   go1.latitude = nil
 end
 
 _manager.withTransaction do
@@ -213,6 +214,7 @@ _manager.withTransaction do
     if gobj.hasAnyIncoming
       puts "Link from: #{gobj.incoming.toArray[0].to_json.inspect}"
       puts "Link to: #{gobj.incoming.toArray[0].outcoming.toArray[0].to_json.inspect}"
+      gobj.removeIncoming(gobj.incoming.toArray[0])
     end
   end
 end
