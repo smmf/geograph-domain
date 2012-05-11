@@ -259,6 +259,7 @@ public class IspnCodeGenerator extends CodeGenerator {
         print(out, "if (oid == null || oid instanceof NullClass)");
         newBlock(out);
         println(out, "internalSet = new " + makeGenericType("BPlusTree", getTypeFullName(role.getType())) + "();");
+        println(out, "internalSet.initRoot();");
         println(out, "IspnTxManager.staticSave(internalSet);");
         print(out, "IspnTxManager.cachePut(getOid() + \":" + role.getName() + "\", internalSet.getOid());");
         closeBlock(out, false);

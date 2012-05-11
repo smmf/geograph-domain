@@ -64,6 +64,7 @@ public abstract class Root_Base extends org.cloudtm.framework.ispn.AbstractDomai
         Object oid = IspnTxManager.cacheGet(getOid() + ":agents");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.Agent>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":agents", internalSet.getOid());
         } else {
@@ -106,6 +107,7 @@ public abstract class Root_Base extends org.cloudtm.framework.ispn.AbstractDomai
         Object oid = IspnTxManager.cacheGet(getOid() + ":jobs");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.Job>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":jobs", internalSet.getOid());
         } else {
@@ -148,6 +150,7 @@ public abstract class Root_Base extends org.cloudtm.framework.ispn.AbstractDomai
         Object oid = IspnTxManager.cacheGet(getOid() + ":geoObjects");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.GeoObject>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":geoObjects", internalSet.getOid());
         } else {

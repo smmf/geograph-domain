@@ -146,6 +146,7 @@ public abstract class GeoObject_Base extends org.cloudtm.framework.ispn.Abstract
         Object oid = IspnTxManager.cacheGet(getOid() + ":outcoming");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.GeoObject>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":outcoming", internalSet.getOid());
         } else {
@@ -188,6 +189,7 @@ public abstract class GeoObject_Base extends org.cloudtm.framework.ispn.Abstract
         Object oid = IspnTxManager.cacheGet(getOid() + ":incoming");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.GeoObject>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":incoming", internalSet.getOid());
         } else {

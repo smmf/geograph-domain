@@ -4,7 +4,7 @@ import java.util.UUID;
 import org.cloudtm.framework.ispn.IspnTxManager;
 
 public abstract class AbstractDomainObject implements java.io.Serializable {
-    public static final class NullClass {}
+    public static final class NullClass implements java.io.Serializable {}
     public static final NullClass NULL_OBJECT = new NullClass();
 
     protected String oid;

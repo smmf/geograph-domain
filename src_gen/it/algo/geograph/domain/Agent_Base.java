@@ -89,6 +89,7 @@ public abstract class Agent_Base extends org.cloudtm.framework.ispn.AbstractDoma
         Object oid = IspnTxManager.cacheGet(getOid() + ":geoObjects");
         if (oid == null || oid instanceof NullClass) {
             internalSet = new BPlusTree<it.algo.geograph.domain.GeoObject>();
+            internalSet.initRoot();
             IspnTxManager.staticSave(internalSet);
             IspnTxManager.cachePut(getOid() + ":geoObjects", internalSet.getOid());
         } else {

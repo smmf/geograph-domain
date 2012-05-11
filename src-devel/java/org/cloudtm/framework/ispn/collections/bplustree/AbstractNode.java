@@ -1,6 +1,7 @@
 package org.cloudtm.framework.ispn.collections.bplustree;
 
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -45,8 +46,12 @@ public abstract class AbstractNode<T extends AbstractDomainObject> extends Abstr
     
     public  AbstractNode() {
         super();
-        org.cloudtm.framework.ispn.IspnTxManager.staticSave(this);
+        //pt.ist.fenixframework.example.tpcw.ispn.IspnTxManager.staticSave(this);
     }
+	
+	protected void saveThis() {
+		org.cloudtm.framework.ispn.IspnTxManager.staticSave(this);
+	}
 
     AbstractNode getRoot() {
 	InnerNode thisParent = this.getParent();

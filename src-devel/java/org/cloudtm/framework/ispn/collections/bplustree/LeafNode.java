@@ -13,11 +13,18 @@ import static org.cloudtm.framework.ispn.collections.bplustree.BPlusTree.COMPARA
 
 public class LeafNode extends LeafNode_Base {
     
+	//Pedro -- added by me
+	public static LeafNode createNewLeafNode() {
+		return new LeafNode(new TreeMap<String,AbstractDomainObject>(BPlusTree.COMPARATOR_SUPPORTING_LAST_KEY));
+	}
+	
     public LeafNode() {
-	setEntries(new TreeMap<String,AbstractDomainObject>(BPlusTree.COMPARATOR_SUPPORTING_LAST_KEY));
+	//Pedro -- i need an empty constructor for JGroups serialization
+	//setEntries(new TreeMap<String,AbstractDomainObject>(BPlusTree.COMPARATOR_SUPPORTING_LAST_KEY));
     }
 
     private LeafNode(TreeMap<String,AbstractDomainObject> entries) {
+	saveThis();
 	setEntries(entries);
     }
 
