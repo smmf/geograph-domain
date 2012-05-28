@@ -78,6 +78,9 @@ public class IspnTxManager extends TxManager {
 
   @Override
   public void configure(Config config) {
+    if (domainCache !=  null) {
+       return;
+    }
     String configurationFileLocation = config.getDbAlias();
     CacheContainer cc = null;
     try {
