@@ -96,10 +96,21 @@ public class IspnTxManager extends TxManager {
    private static final Random rand = new Random();
 
    public static final void cachePut(String key, Object value) {
+      try {
+               System.err.println("PUT " + key + " in transaction " + transactionManager.getTransaction());
+            } catch (Exception e) {
+               //
+            }
+
       domainCache.put(key, (value != null) ? value : AbstractDomainObject.NULL_OBJECT);
    }
 
    public static final <T> T cacheGet(String key) {
+       try {
+               System.err.println("GET " + key + " in transaction " + transactionManager.getTransaction());
+            } catch (Exception e) {
+               //
+            }
       Object obj = domainCache.get(key);
       return (T)(obj instanceof AbstractDomainObject.NullClass ? null : obj);
    }
