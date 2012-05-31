@@ -1,21 +1,26 @@
 package org.cloudtm.framework.ispn;
 
 import it.algo.geograph.domain.Root;
+
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.TransactionManager;
 
 import org.apache.log4j.Logger;
+import org.apache.log4j.Level;
+
 import org.infinispan.Cache;
 import org.infinispan.CacheException;
 import org.infinispan.manager.CacheContainer;
 import org.infinispan.manager.DefaultCacheManager;
+
 import org.cloudtm.framework.TxManager;
 
 import java.util.Random;
 import org.cloudtm.framework.TransactionalCommand;
 import pt.ist.fenixframework.Config;
+
 
 public class IspnTxManager extends TxManager {
    /*
@@ -33,6 +38,7 @@ public class IspnTxManager extends TxManager {
    // true => use a global identity map;
    // false => use a per-transaction identity map
    private static final boolean USE_SHARED_IDENTITY_MAP = false;
+
    static {
       if (USE_SHARED_IDENTITY_MAP) {
          idMap = new SharedIdentityMap();
@@ -44,6 +50,7 @@ public class IspnTxManager extends TxManager {
    }
 
    public static IdentityMap getIdentityMap() {
+
       if (USE_SHARED_IDENTITY_MAP) {
          return idMap;
       } else {
@@ -78,15 +85,16 @@ public class IspnTxManager extends TxManager {
 
   @Override
   public void configure(Config config) {
-    if (domainCache !=  null) {
-       return;
-    }
+
+    if (domainCache != null) {
+      return;
+     }  
     String configurationFileLocation = config.getDbAlias();
     CacheContainer cc = null;
     try {
       cc = new DefaultCacheManager(configurationFileLocation);
     } catch (java.io.IOException ioe) {
-      System.err.println("Error creating cache manger with configuration file: " + configurationFileLocation + ": " + ioe);
+      log.fatal("Error creating cache manger with configuration file: " + configurationFileLocation + ": " + ioe);
       System.exit(-1);
     }
     domainCache = cc.getCache(DOMAIN_CACHE_NAME);
@@ -95,22 +103,24 @@ public class IspnTxManager extends TxManager {
 
    private static final Random rand = new Random();
 
+
    public static final void cachePut(String key, Object value) {
-      try {
-               System.err.println("PUT " + key + " in transaction " + transactionManager.getTransaction());
+        try {
+               if(log.isDebugEnabled())
+                  log.debug("PUT " + key + " in transaction " + transactionManager.getTransaction());
             } catch (Exception e) {
                //
             }
-
       domainCache.put(key, (value != null) ? value : AbstractDomainObject.NULL_OBJECT);
    }
 
    public static final <T> T cacheGet(String key) {
-       try {
-               System.err.println("GET " + key + " in transaction " + transactionManager.getTransaction());
-            } catch (Exception e) {
-               //
-            }
+    try {
+          if(log.isDebugEnabled())
+            log.debug("GET " + key + " in transaction " + transactionManager.getTransaction());
+         } catch (Exception e) {
+            //
+         }
       Object obj = domainCache.get(key);
       return (T)(obj instanceof AbstractDomainObject.NullClass ? null : obj);
    }
@@ -124,7 +134,7 @@ public class IspnTxManager extends TxManager {
       AbstractDomainObject newObj = (AbstractDomainObject)obj;
       Object toConfirm = getIdentityMap().cache(newObj);
       if (toConfirm != newObj) {
-         System.err.println("Another object was already cached with the same key, which violates the idea that the new obj should have a unique oid. Cannot continue.");
+         log.fatal("Another object was already cached with the same key, which violates the idea that the new obj should have a unique oid. Cannot continue.");
          System.exit(1);
       }
       domainCache.put(newObj.getOid(), newObj);
@@ -155,7 +165,9 @@ public class IspnTxManager extends TxManager {
 
    @Override
    public <T> T withTransaction(final TransactionalCommand<T> command) {
+
       if (!USE_SHARED_IDENTITY_MAP) {
+
          return withTransactionWithLocalIdentityMap(command);
       } else {
          T result = null;
@@ -168,6 +180,9 @@ public class IspnTxManager extends TxManager {
                     transactionManager.begin();
                     inTopLevelTransaction = true;
                 }
+               if(log.isDebugEnabled())
+                if(domainCache.getAdvancedCache() !=null  && domainCache.getAdvancedCache().getRpcManager()!= null && domainCache.getAdvancedCache().getRpcManager().getTransport()!=null)
+                   log.debug("cache name: " + domainCache.getName() + "\nCluster members: " + domainCache.getAdvancedCache().getRpcManager().getTransport().getMembers() + "\nCache size: " + domainCache.size());
 
                // do some work
                result = command.doIt();
@@ -191,11 +206,7 @@ public class IspnTxManager extends TxManager {
                //If a heuristic decision to roll back the transaction was made
                logExceptionAndRetry(hre);
             } catch (Exception e) { // any other exception 	 out
-               System.out.println("================================================================================");
-               System.out.println("class: " + e.getClass());
-               System.out.println("cause: " + e.getCause());
-               e.printStackTrace();
-               System.out.println("================================================================================");
+               log_error(e, null);
                throw new RuntimeException(e);
             } finally {
                if (!txFinished) {
@@ -207,14 +218,14 @@ public class IspnTxManager extends TxManager {
                      //          so rollback() will be invoked again, but the transaction no longer exists
                      // Pedro -- just ignore it
                   } catch (Exception ex) {
-                     System.err.println("exception while aborting");
-                     ex.printStackTrace();
+                     log_error(ex, null);
                   }
                }
                // currentEntityManager.set(null);
             }
             waitingBeforeRetry();
-            log.warn("retying transaction: " + command);
+            if(log.isDebugEnabled())
+                log.warn("retying transaction: " + command);
          }
          // never reached
          throw new RuntimeException("code never reached");
@@ -241,6 +252,12 @@ public class IspnTxManager extends TxManager {
 
             localIdMap = new LocalIdentityMap();
             perTxIdMap.set(localIdMap);
+            if(log.isDebugEnabled()){
+               log.debug("--cache name: " + domainCache.getName());
+               if(domainCache.getAdvancedCache() !=null  && domainCache.getAdvancedCache().getRpcManager()!= null && domainCache.getAdvancedCache().getRpcManager().getTransport()!=null)
+               log.debug("\nCluster members: " + domainCache.getAdvancedCache().getRpcManager().getTransport().getMembers() + "\nCache size: " + domainCache.size());
+            }
+
             // do some work
             result = command.doIt();
             if (inTopLevelTransaction) {
@@ -262,11 +279,7 @@ public class IspnTxManager extends TxManager {
             //If a heuristic decision to roll back the transaction was made
             logExceptionAndRetry(hre);
          } catch (Exception e) { // any other exception 	 out
-            System.out.println("================================================================================");
-            System.out.println("class: " + e.getClass());
-            System.out.println("cause: " + e.getCause());
-            e.printStackTrace();
-            System.out.println("================================================================================");
+
             throw new RuntimeException(e);
          } finally {
             if (!txFinished) {
@@ -278,8 +291,9 @@ public class IspnTxManager extends TxManager {
                   //          so rollback() will be invoked again, but the transaction no longer exists
                   // Pedro -- just ignore it
                } catch (Exception ex) {
-                  System.err.println("exception while aborting");
-                  ex.printStackTrace();
+                 log_error(ex, null);
+
+
                }
             }
             perTxIdMap.set(null);
@@ -306,7 +320,63 @@ public class IspnTxManager extends TxManager {
 
    private void logExceptionAndRetry(Exception e) {
       log.info("Exception catch in transaction: " + e.getLocalizedMessage());
-      log.trace("Exception catch in transaction:", e);
+      log.debug("Exception catch in transaction:", e);
+   }
+
+
+   private void log_error(Throwable ex, String message){
+      if(log.isInfoEnabled()){
+           if(message!=null)
+              log.error(message);
+           log.error(ex.toString());
+           Throwable cause = (Throwable)ex;
+           //inspect all the causes
+           log.error("===========================================\n");
+           while(cause!=null){
+             log.error(cause.getMessage());
+             cause=cause.getCause();
+           }
+           log.error("===========================================\n");
+      }
+
+   }
+
+
+   //Test code
+
+   public IspnTxManager(){
+       super();
+       testLogging();
+       log_error(new Throwable("test error"), "ops");
+      }
+
+   private static void testLogging(){
+
+        // System.err.println(log.getLevel());
+
+
+         log.fatal("===========================================");
+
+         //if(log.isFatalEnabled())
+             log.fatal("FATAL");
+
+         //if(log.isErrorEnabled())
+             log.error("ERROR");
+
+         //if(log.isWarnEnabled())
+             log.warn("WARN");
+
+         if(log.isInfoEnabled())
+              log.info("INFO");
+
+         if(log.isDebugEnabled())
+              log.debug("DEBUG");
+
+         if(log.isTraceEnabled())
+             log.trace("TRACE");
+
+         log.fatal("===========================================");
+
    }
 
 }
