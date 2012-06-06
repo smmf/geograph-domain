@@ -84,7 +84,7 @@ public class IspnTxManager extends TxManager {
    private static TransactionManager transactionManager;
 
   @Override
-  public void configure(Config config) {
+  public synchronized void configure(Config config) {
 
     if (domainCache != null) {
       return;
