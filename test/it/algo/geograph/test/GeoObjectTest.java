@@ -59,7 +59,7 @@ public class GeoObjectTest {
       }
     };
 
-    Init.initializeTxSystem(config, Framework.ISPN);
+    Init.initializeTxSystem(config, Framework.OGM);
     txManager = TxSystem.getManager();
   }
 

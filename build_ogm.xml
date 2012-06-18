@@ -12,7 +12,7 @@
   <!-- main src dirs -->
   <property name="src.dir" location="src"/>
   <property name="common.src.dir" location="${src.dir}/common"/>
-  <property name="ogm.src.dir" location="${src.dir}/ogm"/>
+  <property name="ogm.src.dir" location="${src.dir}/common"/>
   
   <!-- common src dirs -->
   <property name="dml.common.src.dir" location="${common.src.dir}/dml"/>
@@ -21,7 +21,7 @@
 
   <!-- ogm specific dirs -->
   <property name="java.ogm.src.dir" location="${ogm.src.dir}/java"/>
-  <property name="etc.ogm.src.dir" location="${ogm.src.dir}/etc"/>
+  <!-- <property name="etc.ogm.src.dir" location="${ogm.src.dir}/etc"/> -->
 
   <!-- other project dirs -->
   <property name="lib.dir" location="lib"/>
@@ -32,8 +32,11 @@
 
   <property name="build-devel.dir" location="classes-devel"/>
   <property name="src-devel.dir" location="src-devel"/>
-  <property name="src.gen.dir" location="src_gen"/>
+  <property name="src.gen.dir" location="src_gen_ogm"/>
   <property name="java.src-devel.dir" location="${src-devel.dir}/java"/>
+
+  <property name="ogm.code.generator.file" value="org/cloudtm/framework/ogm/HibernateOGMCodeGenerator.java"/>
+  <property name="ogm.code.generator.class" value="org.cloudtm.framework.ogm.HibernateOGMCodeGenerator"/>
 
   <!-- The encoding of all the source files should be the same! -->
   <property name="javac.encoding" value="UTF-8"/>
@@ -72,23 +75,34 @@
     <mkdir dir="${dist.dir}"/>
   </target>
 
-  <target name="compile-generator" depends="init" description="Compiles the DML code generator needed for ogm">
+  <!-- <target name="compile-generator" depends="init" description="Compiles the DML code generator needed for ogm">
     <javac destdir="${build-devel.dir}" extdirs="${lib.dir}" target="1.5" debug="on" encoding="${javac.encoding}">
       <src path="${java.src-devel.dir}" />
-      <include name="**/pt/ist/fenixframework/example/tpcw/dml/" />
+      <include name="**/org.cloudtm.framework.ogm/" />
       <classpath refid="project.class.path"/>
     </javac>
   </target>
+ -->
+  <target name="compile-generator" depends="init" description="Compiles the DML code generator for OGM">
+    <javac srcdir="${java.src-devel.dir}" includes="${ogm.code.generator.file}" destdir="${build-devel.dir}"
+           extdirs="${lib.dir}" target="1.6" encoding="${javac.encoding}" debug="on" />
+  </target>
 
   <target name="generate-domain" depends="compile-generator" >
-    <dml-compile codeGenerator="pt.ist.fenixframework.example.tpcw.dml.TPCWHibernateOGMCodeGenerator"
+    <dml-compile codeGenerator="${ogm.code.generator.class}"
         dml="${domain.dml}" java-sources="${java.common.src.dir}" java-gen="${src.gen.dir}">
       <classpath refid="project.class.path"/>
     </dml-compile>
 
+    <copy todir="${src.gen.dir}">
+      <fileset dir="${java.src-devel.dir}">
+      <include name="**/org/cloudtm/framework/ogm/**" />
+      </fileset>
+    </copy>
+
     <copy todir="${build.dir}">
       <fileset dir="${src.gen.dir}">
-	<include name="META-INF/**" />
+      <include name="META-INF/**" />
       </fileset>
     </copy>
   </target>
@@ -117,7 +131,7 @@
     <!-- </post-process-domain> -->
 
     <copy todir="${build.dir}">
-      <fileset dir="${etc.ogm.src.dir}" />
+      <!-- <fileset dir="${etc.ogm.src.dir}" /> -->
       <fileset dir="${dml.common.src.dir}" />
       <fileset dir="${config.dir}" />
     </copy>
@@ -136,7 +150,7 @@
 -->
 
   <property name="app.war.file" location="${dist.dir}/geographOgm.war" />
-  <target name="create-war" depends="init,compile" description="creates the tpcwFenix.war file" >  
+  <target name="create-war" depends="init,compile" description="creates the geographOgm.war file" >
     <!-- create new war, deleting previous version first -->
     <delete file="${app.war.file}" />
     <!-- use tpcw servlets as the base for the war file -->

@@ -5,7 +5,7 @@
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>geograph-domain</name>
             <source-roots>
-                <root id="src.src_gen.dir"/>
+                <root id="src.src_gen_ogm.dir"/>
                 <root id="src.dir"/>
             </source-roots>
             <test-roots>

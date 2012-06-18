@@ -1,6 +1,5 @@
 package org.cloudtm.framework;
 
-import java.lang.reflect.InvocationTargetException;
 import pt.ist.fenixframework.Config;
 
 public abstract class TxSystem {

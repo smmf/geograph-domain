@@ -24,7 +24,7 @@ public class HibOgmTxManager extends TxManager {
   // private static final TransactionManager transactionManager =
   //     new HibernateTransactionManagerLookup().getTransactionManager(null);
 
-  private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("tpcw-persistence-unit");
+  private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("geograph-persistence-unit");
   private static final TransactionManager transactionManager;
 
   static {
