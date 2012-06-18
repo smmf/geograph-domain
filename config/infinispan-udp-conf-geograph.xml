@@ -32,7 +32,9 @@
             enabled="true"/>
     <deadlockDetection
             enabled="true"/>
-    <!--transactionManagerLookupClass="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup"-->
+    <!-- transactionManagerLookupClass="org.infinispan.transaction.lookup.JBossStandaloneJTAManagerLookup" 
+     org.hibernate.service.jta.platform.spi.JtaPlatform
+      -->
     <transaction
             transactionManagerLookupClass="org.infinispan.transaction.lookup.JBossTransactionManagerLookup"
             useEagerLocking="false"

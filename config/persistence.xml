@@ -6,13 +6,15 @@
     <persistence-unit name="geograph-persistence-unit" transaction-type="JTA">
         <!-- Use Hibernate OGM provider: configuration will be transparent -->
         <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
+        <mapping-file>META-INF/orm.xml</mapping-file>
         <properties>
             <property name="hibernate.ogm.datastore.provider" value="org.hibernate.ogm.datastore.infinispan.impl.InfinispanDatastoreProvider"/>
             <!-- or any transaction manager lookup implementation you want in your environment -->
-            <property name="hibernate.transaction.manager_lookup_class"
-                      value="org.infinispan.transaction.lookup.JBossTransactionManagerLookup" />
-<!--                      value="org.hibernate.transaction.JBossTSStandaloneTransactionManagerLookup" /> -->
-
+            <!-- <property name="hibernate.transaction.manager_lookup_class"
+                value="org.hibernate.service.jta.platform.spi.JtaPlatform" /> -->
+            <property name="hibernate.transaction.jta.platform"
+            value="org.hibernate.service.jta.platform.internal.JBossAppServerJtaPlatform" />
+                  
             <!-- <property name="hibernate.cache.provider_class" value="org.hibernate.cache.EhCacheProvider" /> -->
 
             <property name="hibernate.cache.use_second_level_cache" value="false" />
@@ -22,5 +24,3 @@
         </properties>
     </persistence-unit>
 </persistence>
-
-
