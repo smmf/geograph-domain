@@ -25,7 +25,7 @@ FenixConfig = Java::PtIstFenixframework::Config
 FenixFramework = Java::PtIstFenixframework::FenixFramework
 
 # Load the domain models
-FenixGeoObject = Java::ItAlgoGeographDomain::GeoObject
+Agent = Java::ItAlgoGeographDomain::Agent
 FenixRoot = Java::ItAlgoGeographDomain::Root
 
 # Load the CloudTM glue framework
@@ -139,7 +139,7 @@ class FenixLoader
 end
 
 
-class FenixGeoObject
+class Agent
   # fake to_json method
   def to_json
     {
@@ -155,12 +155,13 @@ class FenixGeoObject
       manager = CloudTmTransactionManager.manager
       manager.withTransaction do
 
-        instance = FenixGeoObject.new
+        instance = Agent.new
         attrs.each do |attr, value|
           instance.send("#{attr}=", value)
         end
-        manager.save instance
-        instance.set_root manager.getRoot
+        manager.getRoot.add_agents instance
+		manager.save instance
+		
         instance.to_json
       end
     end
@@ -168,8 +169,8 @@ class FenixGeoObject
     def all
       manager = CloudTmTransactionManager.manager
       manager.withTransaction do
-        _geo_objects = manager.getRoot.getGeoObjects
-        _geo_objects.map(&:to_json)
+        _agents = manager.getRoot.getAgents
+        _agents.map(&:to_json)
       end
     end
 
@@ -183,38 +184,44 @@ FenixLoader.load({
   })
 
 
-go = FenixGeoObject.create({
+go = Agent.create({
     :latitude => java.math.BigDecimal.new("45.4324"),
     :longitude => java.math.BigDecimal.new("23.6543")
   })
 puts "Created #{go.inspect}"
 
-FenixGeoObject.all.each do |geo_object|
-  puts "Created geo object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
+Agent.all.each do |geo_object|
+  puts "Created agent object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
 end
 
 #puts "Json version: #{FenixGeoObject.all.to_json}"
 
-FenixGeoObject.create({
+Agent.create({
     :latitude => java.math.BigDecimal.new("72.6426"),
     :longitude => java.math.BigDecimal.new("32.5425")
   })
 
-_manager = CloudTmTransactionManager.manager
-_manager.withTransaction do
-   _gobjects = _manager.getRoot.getGeoObjects
-   go1 = _gobjects.toArray[0]
-   go2 = _gobjects.toArray[1]
-   go1.addIncoming(go2)
-   go1.latitude = nil
+puts "Agents are"
+Agent.all.each do |geo_object|
+  puts "geo object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
 end
 
-_manager.withTransaction do
-  _manager.getRoot.getGeoObjects.each do |gobj|
-    if gobj.hasAnyIncoming
-      puts "Link from: #{gobj.incoming.toArray[0].to_json.inspect}"
-      puts "Link to: #{gobj.incoming.toArray[0].outcoming.toArray[0].to_json.inspect}"
-      gobj.removeIncoming(gobj.incoming.toArray[0])
-    end
-  end
-end
+
+#_manager = CloudTmTransactionManager.manager
+#_manager.withTransaction do
+#   _gobjects = _manager.getRoot.getAgents
+#   go1 = _gobjects.toArray[0]
+#   go2 = _gobjects.toArray[1]
+#   go1.addIncoming(go2)
+#   go1.latitude = nil
+#end
+
+#_manager.withTransaction do
+#  _manager.getRoot.getGeoObjects.each do |gobj|
+#    if gobj.hasAnyIncoming
+#      puts "Link from: #{gobj.incoming.toArray[0].to_json.inspect}"
+#      puts "Link to: #{gobj.incoming.toArray[0].outcoming.toArray[0].to_json.inspect}"
+#      gobj.removeIncoming(gobj.incoming.toArray[0])
+#    end
+#  end
+#end
