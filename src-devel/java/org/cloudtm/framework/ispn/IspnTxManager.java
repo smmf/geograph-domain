@@ -1,25 +1,21 @@
 package org.cloudtm.framework.ispn;
 
 import it.algo.geograph.domain.Root;
+import org.apache.log4j.Logger;
+import org.cloudtm.framework.TransactionalCommand;
+import org.cloudtm.framework.TxManager;
+import org.infinispan.Cache;
+import org.infinispan.CacheException;
+import org.infinispan.manager.CacheContainer;
+import org.infinispan.manager.DefaultCacheManager;
+import pt.ist.fenixframework.Config;
 
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
 import javax.transaction.RollbackException;
 import javax.transaction.TransactionManager;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.Level;
-
-import org.infinispan.Cache;
-import org.infinispan.CacheException;
-import org.infinispan.manager.CacheContainer;
-import org.infinispan.manager.DefaultCacheManager;
-
-import org.cloudtm.framework.TxManager;
-
+import java.io.IOException;
 import java.util.Random;
-import org.cloudtm.framework.TransactionalCommand;
-import pt.ist.fenixframework.Config;
 
 
 public class IspnTxManager extends TxManager {
@@ -57,6 +53,8 @@ public class IspnTxManager extends TxManager {
          return perTxIdMap.get();
       }
    }
+    
+    private static final Object CONFIGURE_LOCK = new Object();
 
    /* The domain cache store the following kinds of entries:
    *
@@ -84,37 +82,41 @@ public class IspnTxManager extends TxManager {
    private static TransactionManager transactionManager;
 
   @Override
-  public synchronized void configure(Config config) {
-
-    if (domainCache != null) {
-      return;
-     }  
-    String configurationFileLocation = config.getDbAlias();
-    CacheContainer cc = null;
-    try {
-      cc = new DefaultCacheManager(configurationFileLocation);
-    } catch (java.io.IOException ioe) {
-      log.fatal("Error creating cache manger with configuration file: " + configurationFileLocation + ": " + ioe);
-      System.exit(-1);
+  public void configure(Config config) {
+    synchronized (CONFIGURE_LOCK) {
+      if (domainCache != null) {
+        log.info("Not configure DML Infinispan cache. It is already created");
+        return;
+      }
+            
+      String configurationFileLocation = config.getDbAlias();
+      log.info("Configure DML Infinispan cache. Config file is " + configurationFileLocation);
+      CacheContainer cc = null;
+      try {
+        cc = new DefaultCacheManager(configurationFileLocation);
+      } catch (IOException ioe) {
+        log.fatal("Error creating cache manger with configuration file: " + configurationFileLocation + ": " + ioe);
+        System.exit(-1);
+      }
+      domainCache = cc.getCache(DOMAIN_CACHE_NAME);
+      transactionManager = domainCache.getAdvancedCache().getTransactionManager();
     }
-    domainCache = cc.getCache(DOMAIN_CACHE_NAME);
-    transactionManager = domainCache.getAdvancedCache().getTransactionManager();
   }
 
    private static final Random rand = new Random();
 
 
-   public static final void cachePut(String key, Object value) {
-        try {
-               if(log.isDebugEnabled())
-                  log.debug("PUT " + key + " in transaction " + transactionManager.getTransaction());
-            } catch (Exception e) {
-               //
-            }
-      domainCache.put(key, (value != null) ? value : AbstractDomainObject.NULL_OBJECT);
+  public static void cachePut(String key, Object value) {
+    try {
+      if(log.isDebugEnabled())
+        log.debug("PUT " + key + " in transaction " + transactionManager.getTransaction());
+    } catch (Exception e) {
+      //
+    }
+    domainCache.put(key, (value != null) ? value : AbstractDomainObject.NULL_OBJECT);
    }
 
-   public static final <T> T cacheGet(String key) {
+   public static <T> T cacheGet(String key) {
     try {
           if(log.isDebugEnabled())
             log.debug("GET " + key + " in transaction " + transactionManager.getTransaction());
@@ -147,6 +149,7 @@ public class IspnTxManager extends TxManager {
 
    // this method should only be invoked within a transaction
    public static final String ROOT_OBJECT = "ROOT_OBJECT";
+  
    @Override
    public <T> T getRoot() {
       AbstractDomainObject root = getDomainObject(Root.class, ROOT_OBJECT);
@@ -324,22 +327,22 @@ public class IspnTxManager extends TxManager {
    }
 
 
-   private void log_error(Throwable ex, String message){
-      if(log.isInfoEnabled()){
-           if(message!=null)
-              log.error(message);
-           log.error(ex.toString());
-           Throwable cause = (Throwable)ex;
-           //inspect all the causes
-           log.error("===========================================\n");
-           while(cause!=null){
-             log.error(cause.getMessage());
-             cause=cause.getCause();
-           }
-           log.error("===========================================\n");
+  private void log_error(Throwable ex, String message){
+    if(log.isInfoEnabled()){
+      if(message!=null)
+        log.error(message);
+      log.error(ex.toString());
+      Throwable cause = ex;
+      //inspect all the causes
+      log.error("===========================================\n");
+      while(cause != null){
+        log.error(cause.getMessage());
+        cause = cause.getCause();
       }
+      log.error("===========================================\n");
+    }
 
-   }
+  }
 
 
    //Test code
