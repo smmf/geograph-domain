@@ -18,6 +18,6 @@ public abstract class TxManager {
     public abstract <T> T withTransaction(TransactionalCommand<T> command);
     public abstract <T> T withTransaction(TransactionalCommand<T> command, boolean readonly);
     // When stopping the web container we need to stop JGroups.  This is here for convenience, but
-    // we wnat this to go to a handler when unloading or stopping the web application
+    // we want this to go to a handler when unloading or stopping the web application
     public abstract void stop();
 }

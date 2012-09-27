@@ -26,6 +26,7 @@ FenixFramework = Java::PtIstFenixframework::FenixFramework
 
 # Load the domain models
 Agent = Java::ItAlgoGeographDomain::Agent
+Post = Java::ItAlgoGeographDomain::Post
 FenixRoot = Java::ItAlgoGeographDomain::Root
 
 # Load the CloudTM glue framework
@@ -206,6 +207,8 @@ Agent.all.each do |geo_object|
   puts "geo object: lat = #{geo_object[:latitude]} - lon = #{geo_object[:longitude]}"
 end
 
+
+	  
 
 #_manager = CloudTmTransactionManager.manager
 #_manager.withTransaction do
