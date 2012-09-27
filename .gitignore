@@ -6,3 +6,5 @@
 .idea
 #idea files
 *.iml
+/src_gen
+/classes
