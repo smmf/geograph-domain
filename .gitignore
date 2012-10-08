@@ -1,10 +1,7 @@
-
-/build
 /classes
 /*.log
 .DS_Store
 .idea
 #idea files
 *.iml
-/src_gen
-/classes
+/src/main/java

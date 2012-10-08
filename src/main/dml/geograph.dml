@@ -1,0 +1,95 @@
+package it.algo.geograph.domain;
+
+
+// VALUE TYPES
+
+valueType java.math.BigDecimal as Decimal {
+    externalizeWith {
+        String toString();
+    }
+}
+
+
+// DOMAIN OBJECTS
+
+class GeoObject {
+  String type;
+  String body;
+  Decimal latitude;
+  Decimal longitude;
+}
+
+class Agent extends GeoObject{
+  String status;
+  String user;
+}
+
+class Post  extends GeoObject{
+  Integer likes;
+  String text;
+  String user;
+}
+
+class Place  extends GeoObject{
+  String description;
+  String user;
+  Integer checkins;
+}
+
+class Comment {
+  String text;
+}
+
+class Properties {
+  String edge_processor_strategy; // job or action
+  Integer distance;
+}
+
+
+class Root { // This is the root domain object
+    boolean loaded;         // auxiliary slot for the bootstrap sequence
+    Integer numAgentIds;    // for the generation of Agent ids
+    Integer numPropertiesIds; // FIXME is this the right way to do it?
+}
+
+
+// RELATIONS
+
+relation RootHasAgent {
+    Root playsRole;  //For unidirectional write no role name
+    Agent playsRole agents { multiplicity *; }
+}
+
+relation RootHasProperties {
+   Root playsRole;
+   Properties playsRole properties { multiplicity 0..1; }
+}
+
+
+relation AgentHasPost { //add posts must use closed simulation to avoid conflicts
+    Agent playsRole agent;
+    Post playsRole posts { multiplicity *; }
+}
+
+relation AgentWroteComment { //add posts must use closed simulation to avoid conflicts
+    Agent playsRole agent;
+    Comment playsRole comments { multiplicity *; }
+}
+
+relation PostHasComment { //add posts must use closed simulation to avoid conflicts
+    Post playsRole post;
+    Comment playsRole comments { multiplicity *; }
+}
+
+relation PlaceHasPost { //add posts must use closed simulation to avoid conflicts
+    Place playsRole place;
+    Post playsRole posts { multiplicity *; }
+}
+
+relation GeoObjectHasGeoObject{
+  GeoObject playsRole neighbours { multiplicity *; }
+  GeoObject playsRole; // this is IMPORTANT!!! :-)
+}
+
+
+
