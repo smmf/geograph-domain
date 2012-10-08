@@ -5,3 +5,4 @@
 #idea files
 *.iml
 /src/main/java
+/target
