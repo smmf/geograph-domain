@@ -18,7 +18,7 @@ In order to generate the Geograph domain model do the following:
 
  find ~/.m2/repository/pt/ist -name \*.jar | grep 2.0-cloudtm | grep SNAPSHOT.jar > libs_paths
 
- for i in `cat libs_paths`; do cp $i PATH_TO_GEPGRAPH/lib/ispn/jars; done
+ for i in `cat libs_paths`; do cp $i PATH_TO_GEPGRAPH/lib/cloud_tm/jars; done
 
 in your lib folder (instead of fenix-framework jar as for DML v1)
 
