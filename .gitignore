@@ -6,3 +6,4 @@
 *.iml
 /src/main/java
 /target
+/libs_paths
