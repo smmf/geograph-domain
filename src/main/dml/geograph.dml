@@ -57,7 +57,7 @@ class Root { // This is the root domain object
 
 relation DomainRootHasRoot {
     .pt.ist.fenixframework.DomainRoot playsRole;
-    Root playsRole root;
+    Root playsRole app;
 }
 
 relation RootHasAgent {
