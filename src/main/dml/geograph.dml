@@ -21,7 +21,7 @@ class GeoObject {
 
 class Agent extends GeoObject{
   String status;
-  String user;
+  {"unique":true} String user;
 }
 
 class Post  extends GeoObject{
