@@ -8,15 +8,19 @@
     <packaging>jar</packaging>
 
     <properties>
+        <version.maven.build-helper-plugin>1.7</version.maven.build-helper-plugin>
         <fenixframework.code.generator>pt.ist.fenixframework.backend.infinispan.InfinispanCodeGenerator</fenixframework.code.generator>
+        <!-- <fenixframework.code.generator>pt.ist.fenixframework.backend.ogm.OgmCodeGenerator</fenixframework.code.generator> -->
+        <version.fenixframework>2.0-cloudtm-SNAPSHOT</version.fenixframework>
     </properties>
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>pt.ist</groupId>
                 <artifactId>dml-maven-plugin</artifactId>
-                <version>2.0-cloudtm-SNAPSHOT</version>
+                <version>${version.fenixframework}</version>
                 <configuration>
                     <codeGeneratorClassName>${fenixframework.code.generator}</codeGeneratorClassName>
                 </configuration>
@@ -29,28 +33,58 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${version.maven.build-helper-plugin}</version>
+                <executions>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>target/generated-sources/dml-maven-plugin</directory>
+                                    <excludes>
+                                        <exclude>**/*.java</exclude>
+                                    </excludes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
- <dependency>
+        <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>fenix-framework-core</artifactId>
-            <version>2.0-cloudtm-SNAPSHOT</version>
+            <version>${version.fenixframework}</version>
         </dependency>
         <!-- <dependency> -->
         <!--     <groupId>pt.ist</groupId> -->
         <!--     <artifactId>fenix-framework-bplustree-domain-object</artifactId> -->
-        <!--     <version>2.0-cloudtm-SNAPSHOT</version> -->
+        <!--     <version>${version.fenixframework}</version> -->
         <!-- </dependency> -->
         <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>fenix-framework-adt-bplustree</artifactId>
-            <version>2.0-cloudtm-SNAPSHOT</version>
+            <version>${version.fenixframework}</version>
         </dependency>
         <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>fenix-framework-backend-infinispan</artifactId>
-            <version>2.0-cloudtm-SNAPSHOT</version>
+            <version>${version.fenixframework}</version>
+        </dependency>
+        <dependency>
+            <groupId>pt.ist</groupId>
+            <artifactId>fenix-framework-backend-ogm</artifactId>
+            <version>${version.fenixframework}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -61,7 +95,7 @@
         <dependency>
             <groupId>pt.ist</groupId>
             <artifactId>dml-maven-plugin</artifactId>
-            <version>2.0-cloudtm-SNAPSHOT</version>
+            <version>${version.fenixframework}</version>
         </dependency>
     </dependencies>
     <repositories>
@@ -74,12 +108,12 @@
             <url>https://fenix-ashes.ist.utl.pt/nexus/content/repositories/thirdparty</url>
         </repository>
     </repositories>
-     
-     <pluginRepositories>
-      <pluginRepository>
-        <id>fenix-framework-cloudtm-repository</id>
-        <url>https://fenix-ashes.ist.utl.pt/nexus/content/repositories/fenix-framework-cloudtm-repository</url>
-      </pluginRepository>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>fenix-framework-cloudtm-repository</id>
+            <url>https://fenix-ashes.ist.utl.pt/nexus/content/repositories/fenix-framework-cloudtm-repository</url>
+        </pluginRepository>
     </pluginRepositories>
     
     <distributionManagement>
@@ -93,4 +127,3 @@
         </snapshotRepository>
     </distributionManagement>
 </project>
-
