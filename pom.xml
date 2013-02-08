@@ -11,7 +11,7 @@
         <version.maven.build-helper-plugin>1.7</version.maven.build-helper-plugin>
         <fenixframework.code.generator>pt.ist.fenixframework.backend.infinispan.InfinispanCodeGenerator</fenixframework.code.generator>
         <!-- <fenixframework.code.generator>pt.ist.fenixframework.backend.ogm.OgmCodeGenerator</fenixframework.code.generator> -->
-        <version.fenixframework>2.0-cloudtm</version.fenixframework>
+        <version.fenixframework>2.1-cloudtm-SNAPSHOT</version.fenixframework>
     </properties>
 
     <build>
